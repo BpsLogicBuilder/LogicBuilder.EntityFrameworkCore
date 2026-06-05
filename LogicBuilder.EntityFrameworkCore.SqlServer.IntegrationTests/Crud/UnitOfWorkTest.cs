@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Crud;
+using LogicBuilder.EntityFrameworkCore.Crud;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.AutoMapperProfiles;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Data;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Data.Stores;

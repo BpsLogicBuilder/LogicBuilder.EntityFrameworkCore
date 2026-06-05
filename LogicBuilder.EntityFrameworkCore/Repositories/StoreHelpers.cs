@@ -2,8 +2,8 @@
 using AutoMapper.Extensions.ExpressionMapping;
 using LogicBuilder.Data;
 using LogicBuilder.Domain;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DataStores;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Visitors;
+using LogicBuilder.EntityFrameworkCore.Crud.DataStores;
+using LogicBuilder.EntityFrameworkCore.Visitors;
 using LogicBuilder.Expressions.Utils;
 using LogicBuilder.Expressions.Utils.Expansions;
 using System;
@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Repositories
+namespace LogicBuilder.EntityFrameworkCore.Repositories
 {
     internal static class StoreHelpers
     {

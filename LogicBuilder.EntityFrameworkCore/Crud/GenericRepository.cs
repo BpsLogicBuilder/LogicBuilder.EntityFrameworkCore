@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud
+namespace LogicBuilder.EntityFrameworkCore.Crud
 {
     internal class GenericRepository<T> where T : class
     {

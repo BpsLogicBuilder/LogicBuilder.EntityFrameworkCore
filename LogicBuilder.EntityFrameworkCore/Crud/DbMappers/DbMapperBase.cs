@@ -1,7 +1,7 @@
 ﻿using LogicBuilder.Data;
 using System.Collections.Generic;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DbMappers
+namespace LogicBuilder.EntityFrameworkCore.Crud.DbMappers
 {
     internal class DbMapperBase<T>(IUnitOfWork unitOfWork) : IDbMapper<T> where T : class, IBaseData
     {

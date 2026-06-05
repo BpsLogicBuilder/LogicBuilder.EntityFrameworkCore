@@ -1,11 +1,11 @@
 ﻿using LogicBuilder.Data;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DbMappers;
+using LogicBuilder.EntityFrameworkCore.Crud.DbMappers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud
+namespace LogicBuilder.EntityFrameworkCore.Crud
 {
     internal class UnitOfWork : IUnitOfWork
     {

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Data.Stores;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Repositories;
+using LogicBuilder.EntityFrameworkCore.Repositories;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Models.Repositories
 {

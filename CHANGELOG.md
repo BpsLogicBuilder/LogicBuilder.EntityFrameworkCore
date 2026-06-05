@@ -1,18 +1,19 @@
-* 2025-05-11 - AB#132: Referencing LogicBuilder.Structures 8.0.1 for release.
-* 2025-05-10 - AB#134: Prevent projection to the same type.
-* 2025-04-01 - AB#99:  Added missing test coverage for GenericRepository.GetAsync.
-* 2025-04-01 - AB#99: Update package versions for release.
-* 2025-03-31 - AAB#102: Update CI coverage path, clean up tests and usings.
-* 2025-03-31 - AB#102: Integrate SonarQube Cloud analysis into CI workflow.
-* 2025-03-30 - AB#95: Refactor tests and improve code coverage.
-* 2025-03-28 - AB#95: Remove obsolete comments from AddressModel class.
-* 2025-03-28 - AB#95: Improving code coverage.
-* 2025-03-26 - AB#95: Add status and quality badges to README.md.
-* 2025-03-26 - AB#95: Tests for IContextRepository.
-* 2025-03-26 - AB#98: Improving maintainability with CodeQL and Sonar recommendations.
-* 2025-03-26 - AB#95: Update test coverage output to use only cobertura format.
-* 2025-03-26 - AB#95: Add //NOSONAR to QueryAsync for generic parameter count.
-* 2025-03-26 - AB#95: Enable nullable reference types and improve null-safety.
+* 2026-06-05 - AB#163: Creating new project from LogicBuilder.EntityFrameworkCore.SqlServer.
+* 2026-05-11 - AB#132: Referencing LogicBuilder.Structures 8.0.1 for release.
+* 2026-05-10 - AB#134: Prevent projection to the same type.
+* 2026-04-01 - AB#99:  Added missing test coverage for GenericRepository.GetAsync.
+* 2026-04-01 - AB#99: Update package versions for release.
+* 2026-03-31 - AAB#102: Update CI coverage path, clean up tests and usings.
+* 2026-03-31 - AB#102: Integrate SonarQube Cloud analysis into CI workflow.
+* 2026-03-30 - AB#95: Refactor tests and improve code coverage.
+* 2026-03-28 - AB#95: Remove obsolete comments from AddressModel class.
+* 2026-03-28 - AB#95: Improving code coverage.
+* 2026-03-26 - AB#95: Add status and quality badges to README.md.
+* 2026-03-26 - AB#95: Tests for IContextRepository.
+* 2026-03-26 - AB#98: Improving maintainability with CodeQL and Sonar recommendations.
+* 2026-03-26 - AB#95: Update test coverage output to use only cobertura format.
+* 2026-03-26 - AB#95: Add //NOSONAR to QueryAsync for generic parameter count.
+* 2026-03-26 - AB#95: Enable nullable reference types and improve null-safety.
 * 2026-03-25 - AB#95: Refactor test infra, namespaces, and modernize test code.
 * 2026-03-25 - AB#97: Removing nuget.config.
 * 2026-03-25 - AB#97: Removing pacakge source mapping configuration from nuget.config.
