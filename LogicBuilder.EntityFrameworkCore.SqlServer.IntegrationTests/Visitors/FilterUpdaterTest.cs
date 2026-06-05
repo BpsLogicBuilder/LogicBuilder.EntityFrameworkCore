@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Data;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Models;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Visitors;
+using LogicBuilder.EntityFrameworkCore.Visitors;
 using LogicBuilder.Expressions.Utils.Expansions;
 using Microsoft.Extensions.Logging.Abstractions;
 using System;

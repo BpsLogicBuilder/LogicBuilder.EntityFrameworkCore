@@ -16,7 +16,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Mapping
+namespace LogicBuilder.EntityFrameworkCore.Mapping
 {
 	[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public class ExpressionOperatorsMappingProfile : Profile

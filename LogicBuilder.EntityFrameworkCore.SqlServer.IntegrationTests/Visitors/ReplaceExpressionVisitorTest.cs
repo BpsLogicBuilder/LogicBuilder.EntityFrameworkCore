@@ -1,4 +1,4 @@
-﻿using LogicBuilder.EntityFrameworkCore.SqlServer.Visitors;
+﻿using LogicBuilder.EntityFrameworkCore.Visitors;
 using System;
 using System.Linq.Expressions;
 using Xunit;

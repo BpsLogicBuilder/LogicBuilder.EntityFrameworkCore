@@ -1,4 +1,4 @@
-﻿using LogicBuilder.EntityFrameworkCore.SqlServer.Repositories;
+﻿using LogicBuilder.EntityFrameworkCore.Repositories;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Models.Repositories
 {

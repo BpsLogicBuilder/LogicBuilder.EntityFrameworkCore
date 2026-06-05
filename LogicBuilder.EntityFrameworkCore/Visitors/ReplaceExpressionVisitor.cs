@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Visitors
+namespace LogicBuilder.EntityFrameworkCore.Visitors
 {
     internal class ReplaceExpressionVisitor(Expression source, Expression target) : ExpressionVisitor
     {

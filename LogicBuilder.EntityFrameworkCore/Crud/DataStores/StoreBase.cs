@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DataStores
+namespace LogicBuilder.EntityFrameworkCore.Crud.DataStores
 {
     abstract public class StoreBase(DbContext context) : IStore
     {

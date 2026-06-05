@@ -1,6 +1,6 @@
 ﻿using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Data;
 using LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Models;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Visitors;
+using LogicBuilder.EntityFrameworkCore.Visitors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

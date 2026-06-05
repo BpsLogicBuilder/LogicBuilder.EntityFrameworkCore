@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LogicBuilder.Data;
 using LogicBuilder.Domain;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DataStores;
+using LogicBuilder.EntityFrameworkCore.Crud.DataStores;
 using LogicBuilder.Expressions.Utils.Expansions;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Repositories
+namespace LogicBuilder.EntityFrameworkCore.Repositories
 {
     abstract public class ContextRepositoryBase(IStore store, IMapper mapper) : IContextRepository
     {

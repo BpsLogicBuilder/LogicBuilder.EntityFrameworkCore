@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Visitors
+namespace LogicBuilder.EntityFrameworkCore.Visitors
 {
     internal class FilterAppender(Expression expression, ExpansionOptions expansion, IMapper mapper) : ExpressionVisitor
     {

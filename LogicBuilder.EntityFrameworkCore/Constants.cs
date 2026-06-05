@@ -1,5 +1,5 @@
 ﻿[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests")]
-namespace LogicBuilder.EntityFrameworkCore.SqlServer
+namespace LogicBuilder.EntityFrameworkCore
 {
     public struct ExpressionOperators
     {

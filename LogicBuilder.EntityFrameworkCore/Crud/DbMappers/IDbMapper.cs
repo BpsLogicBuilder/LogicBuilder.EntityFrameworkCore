@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DbMappers
+namespace LogicBuilder.EntityFrameworkCore.Crud.DbMappers
 {
     internal interface IDbMapper<T>
     {

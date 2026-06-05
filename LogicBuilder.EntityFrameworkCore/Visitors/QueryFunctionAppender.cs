@@ -3,7 +3,7 @@ using LogicBuilder.Expressions.Utils.Expansions;
 using System;
 using System.Linq.Expressions;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Visitors
+namespace LogicBuilder.EntityFrameworkCore.Visitors
 {
     internal class QueryFunctionAppender(Expression expression, ExpansionOptions expansion) : ExpressionVisitor
     {

@@ -1,5 +1,5 @@
 ﻿using LogicBuilder.Data;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Properties;
+using LogicBuilder.EntityFrameworkCore.Properties;
 using LogicBuilder.Expressions.Utils;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Conversions;
@@ -15,7 +15,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud
+namespace LogicBuilder.EntityFrameworkCore.Crud
 {
     internal static class Helpers
     {
