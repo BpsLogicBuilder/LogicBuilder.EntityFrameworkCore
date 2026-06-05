@@ -1,0 +1,88 @@
+﻿using LogicBuilder.Data;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+namespace LogicBuilder.EntityFrameworkCore.SqlServer.Crud.DataStores
+{
+    abstract public class StoreBase(DbContext context) : IStore
+    {
+
+        #region Fields
+        internal readonly IUnitOfWork _unitOfWork = new UnitOfWork(context);
+        #endregion Fields
+
+        #region Methods
+        public async Task<ICollection<T>> GetAsync<T>(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IQueryable<T>>? queryFunc = null) where T : class, IBaseData
+        {
+            return await _unitOfWork.GetRepository<T>().GetAsync
+            (
+                filter,
+                queryFunc
+            );
+        }
+
+        public async Task<IQueryable<T>> GetQueryableAsync<T>(Expression<Func<T, bool>>? filter = null, Func<IQueryable<T>, IQueryable<T>>? queryableFunc = null) where T : class, IBaseData
+        {
+            return await _unitOfWork.GetRepository<T>().GetQueryableAsync
+            (
+                filter,
+                queryableFunc
+            );
+        }
+
+        public async Task<int> CountAsync<T>(Expression<Func<T, bool>>? filter = null) where T : class, IBaseData
+        {
+            return await _unitOfWork.GetRepository<T>().CountAsync(filter);
+        }
+
+        public async Task<TReturn> QueryAsync<T, TReturn>(Func<IQueryable<T>, TReturn> queryableFunc) where T : class, IBaseData
+        {
+            return await _unitOfWork.GetRepository<T>().QueryAsync(queryableFunc);
+        }
+
+        public async Task<bool> SaveAsync<T>(ICollection<T> entities) where T : class, IBaseData
+        {
+            _unitOfWork.GetMapper<T>().AddChanges(entities);
+            return await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<bool> SaveGraphsAsync<T>(ICollection<T> entities) where T : class, IBaseData
+        {
+            _unitOfWork.GetMapper<T>().AddGraphChanges(entities);
+            return await _unitOfWork.SaveChangesAsync();
+        }
+
+        public void AddChanges<T>(ICollection<T> entities) where T : class, IBaseData
+        {
+            _unitOfWork.GetMapper<T>().AddChanges(entities);
+        }
+
+        public void AddGraphChanges<T>(ICollection<T> entities) where T : class, IBaseData
+        {
+            _unitOfWork.GetMapper<T>().AddGraphChanges(entities);
+        }
+
+        public async Task<bool> SaveChangesAsync()
+        {
+            return await _unitOfWork.SaveChangesAsync();
+        }
+
+        public void ClearChangeTracker()
+        {
+            _unitOfWork.Context.ChangeTracker.Clear();
+        }
+
+        public void DetachAllEntries()
+        {
+            _unitOfWork.Context.ChangeTracker
+                .Entries()
+                .ToList()
+                .ForEach(e => e.State = EntityState.Detached);
+        }
+        #endregion Methods
+    }
+}
