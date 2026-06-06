@@ -13,20 +13,22 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Crud.DataStores
 {
-    public class SchoolStoreTest
+    public class SchoolStoreTest : IClassFixture<DatabaseFixture>
     {
         static SchoolStoreTest()
         {
             InitializeMapperConfiguration();
         }
 
-        public SchoolStoreTest()
+        public SchoolStoreTest(DatabaseFixture databaseFixture)
         {
+            this.databaseFixture = databaseFixture;
             Initialize();
         }
 
         #region Fields
         private IServiceProvider serviceProvider;
+        private readonly DatabaseFixture databaseFixture;
         #endregion Fields
 
         [Fact]
@@ -64,7 +66,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Crud.DataS
                 (
                     options => options.UseSqlServer
                     (
-                        @"Server=(localdb)\mssqllocaldb;Database=SchoolStoreTest;ConnectRetryCount=0",
+                        databaseFixture.GetConnectionString(GetType().Name),
                         options => options.EnableRetryOnFailure()
                     ),
                     ServiceLifetime.Transient
