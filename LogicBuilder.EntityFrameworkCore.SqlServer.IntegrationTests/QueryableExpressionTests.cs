@@ -20,17 +20,23 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
 {
-    public class QueryableExpressionTests
+    public class QueryableExpressionTests : IClassFixture<DatabaseFixture>
     {
         static QueryableExpressionTests()
         {
             InitializeMapperConfiguration();
         }
 
-        public QueryableExpressionTests()
+        public QueryableExpressionTests(DatabaseFixture databaseFixture)
         {
+            this.databaseFixture = databaseFixture;
             Initialize();
         }
+
+        #region Fields
+        private IServiceProvider serviceProvider;
+        private readonly DatabaseFixture databaseFixture;
+        #endregion Fields
 
         [Fact]
         public async Task Select_Group_Students_By_EnrollmentDate_Return_EnrollmentDate_With_Count()
@@ -115,7 +121,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
 
             //assert
             AssertFilterStringIsCorrect(expression, "q => Convert(q.GroupBy(a => 1).OrderBy(b => b.Key).Select(c => new AnonymousType() {Sum_budget = q.Where(d => ((d.DepartmentID != q.Count()) AndAlso (d.DepartmentID == c.Key))).Sum(item => item.Budget)}))");
-            Assert.True(result.First().Sum_budget == 350000);
+            Assert.True(result[0].Sum_budget == 350000);
         }
 
         [Fact]
@@ -190,7 +196,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
 
             //assert
             AssertFilterStringIsCorrect(expression, "$it => Convert($it.OrderByDescending(a => a.DepartmentID).Select(a => new AnonymousType() {ID = a.DepartmentID, DepartmentName = a.Name, Courses = a.Courses}))");
-            Assert.Equal(4, result.First().ID);
+            Assert.Equal(4, result[0].ID);
         }
 
         [Fact]
@@ -228,7 +234,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
 
             //assert
             AssertFilterStringIsCorrect(expression, "q => q.OrderBy(s => s.FullName).Select(a => a.FullName)");
-            Assert.Equal("Candace Kapoor", result.First());
+            Assert.Equal("Candace Kapoor", result[0]);
         }
 
         [Fact]
@@ -272,12 +278,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
 
             //assert
             AssertFilterStringIsCorrect(expression, "q => Convert(q.OrderBy(s => s.FullName).Select(a => new AnonymousType() {FullName = a.FullName}))");
-            Assert.Equal("Candace Kapoor", result.First().FullName);
+            Assert.Equal("Candace Kapoor", result[0].FullName);
         }
-
-        #region Fields
-        private IServiceProvider serviceProvider;
-        #endregion Fields
 
         #region Helpers
         private static SelectDescriptor GetAboutBody()
@@ -373,7 +375,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests
                 (
                     options => options.UseSqlServer
                     (
-                        @"Server=(localdb)\mssqllocaldb;Database=Integration_QueryableExpressionTests;ConnectRetryCount=0",
+                        databaseFixture.GetConnectionString(GetType().Name),
                         options => options.EnableRetryOnFailure()
                     ),
                     ServiceLifetime.Transient

@@ -16,20 +16,22 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Repositories
 {
-    public class SchoolRepositoryTest
+    public class SchoolRepositoryTest : IClassFixture<DatabaseFixture>
     {
         static SchoolRepositoryTest()
         {
             InitializeMapperConfiguration();
         }
 
-        public SchoolRepositoryTest()
+        public SchoolRepositoryTest(DatabaseFixture databaseFixture)
         {
+            this.databaseFixture = databaseFixture;
             Initialize();
         }
 
         #region Fields
         private IServiceProvider serviceProvider;
+        private readonly DatabaseFixture databaseFixture;
         #endregion Fields
 
         [Fact]
@@ -518,7 +520,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Repositori
                 (
                     options => options.UseSqlServer
                     (
-                        @"Server=(localdb)\mssqllocaldb;Database=RepositoryTest;ConnectRetryCount=0",
+                        databaseFixture.GetConnectionString(GetType().Name),
                         options => options.EnableRetryOnFailure()
                     ),
                     ServiceLifetime.Transient

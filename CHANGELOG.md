@@ -1,3 +1,5 @@
+* 2026-06-06 - AB#164: Clean up dotnet test commands in CI/CD pipelines.
+* 2026-06-06 - AB#164: Refactor CI and tests fto use ubuntu-latest.
 * 2026-06-05 - AB#163: Creating new project from LogicBuilder.EntityFrameworkCore.SqlServer.
 * 2026-05-11 - AB#132: Referencing LogicBuilder.Structures 8.0.1 for release.
 * 2026-05-10 - AB#134: Prevent projection to the same type.

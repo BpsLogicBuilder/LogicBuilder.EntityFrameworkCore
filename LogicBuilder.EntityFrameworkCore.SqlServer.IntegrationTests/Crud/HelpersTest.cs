@@ -15,20 +15,22 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Crud
 {
-    public class HelpersTest
+    public class HelpersTest : IClassFixture<DatabaseFixture>
     {
         static HelpersTest()
         {
             InitializeMapperConfiguration();
         }
 
-        public HelpersTest()
+        public HelpersTest(DatabaseFixture databaseFixture)
         {
+            this.databaseFixture = databaseFixture;
             Initialize();
         }
 
         #region Fields
         private IServiceProvider serviceProvider;
+        private readonly DatabaseFixture databaseFixture;
         #endregion Fields
 
         [Fact]
@@ -295,7 +297,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Crud
                 (
                     options => options.UseSqlServer
                     (
-                        @"Server=(localdb)\mssqllocaldb;Database=HelpersRepositoryTest;ConnectRetryCount=0",
+                        databaseFixture.GetConnectionString(GetType().Name),
                         options => options.EnableRetryOnFailure()
                     ),
                     ServiceLifetime.Transient
