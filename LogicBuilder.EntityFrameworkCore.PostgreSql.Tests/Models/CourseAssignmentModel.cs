@@ -6,10 +6,10 @@
 
 		public int CourseID { get; set; }
 
-        public string CourseTitle { get; set; }
+        public string CourseTitle { get; set; } = "";
 
-        public string CourseNumberAndTitle { get; set; }
+        public string CourseNumberAndTitle { get; set; } = "";
 
-        public string Department { get; set; }
+        public string Department { get; set; } = "";
     }
 }

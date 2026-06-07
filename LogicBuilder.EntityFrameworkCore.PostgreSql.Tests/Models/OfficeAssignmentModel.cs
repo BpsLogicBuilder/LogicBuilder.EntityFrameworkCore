@@ -9,6 +9,6 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models
 
 		[StringLength(50)]
 		[Display(Name = "Office Location")]
-		public string Location { get; set; }
+		public string Location { get; set; } = "";
     }
 }

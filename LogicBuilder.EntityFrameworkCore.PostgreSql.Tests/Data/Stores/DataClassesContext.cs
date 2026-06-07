@@ -1,6 +1,7 @@
 ﻿using LogicBuilder.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Data.Stores
@@ -14,11 +15,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Data.Stores
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            foreach (PropertyInfo property in this.GetType().GetProperties())
+            foreach (PropertyInfo property in this.GetType().GetProperties().Where(p => p.PropertyType.Name == "DbSet`1"))
             {
-                if (property.PropertyType.Name != "DbSet`1")
-                    continue;
-
                 Type modelType = property.PropertyType.GetGenericArguments()[0];
                 if (!typeof(BaseData).IsAssignableFrom(modelType))
                     continue;

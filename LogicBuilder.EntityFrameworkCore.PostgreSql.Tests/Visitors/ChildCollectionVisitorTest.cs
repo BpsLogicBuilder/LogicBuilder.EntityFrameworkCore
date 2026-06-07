@@ -53,30 +53,30 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Visitors
             {
                 Category = new CategoryModel
                 {
-                    Products = p.Category.Products.Select(i0 => new ProductModel
+                    Products = p.Category!.Products!.Select(i0 => new ProductModel
                     {
-                        AlternateAddresses = i0.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                        AlternateAddresses = i0.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                         {
                             Product = new ProductModel()
                         }).ToList()
                     }).ToList()
                 },
-                AlternateAddresses = p.AlternateAddresses.Select(i0 => new AlternateAddressModel
+                AlternateAddresses = p.AlternateAddresses!.Select(i0 => new AlternateAddressModel
                 {
                     Product = new ProductModel
                     {
                         Category = new CategoryModel
                         {
                             CategoryID = new int(),
-                            Products = p.Category.Products.Select(i0 => new ProductModel
+                            Products = p.Category.Products!.Select(i0 => new ProductModel
                             {
-                                AlternateAddresses = i0.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                                AlternateAddresses = i0.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                                 {
                                     Product = new ProductModel()
                                 }).ToList()
                             }).ToList()
                         },
-                        AlternateAddresses = i0.Product.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                        AlternateAddresses = i0.Product!.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                         {
                             Product = new ProductModel()
                         }).ToList()
@@ -122,30 +122,30 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Visitors
             {
                 Category = new CategoryModel
                 {
-                    Products = p.Category.Products.Select(i0 => new ProductModel
+                    Products = p.Category!.Products!.Select(i0 => new ProductModel
                     {
-                        AlternateAddresses = i0.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                        AlternateAddresses = i0.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                         {
                             Product = new ProductModel()
                         }).ToList()
                     }).ToList()
                 },
-                AlternateAddresses = p.AlternateAddresses.Select(i0 => new AlternateAddressModel
+                AlternateAddresses = p.AlternateAddresses!.Select(i0 => new AlternateAddressModel
                 {
                     Product = new ProductModel
                     {
                         Category = new CategoryModel
                         {
                             CategoryID = new int(),
-                            Products = p.Category.Products.Select(i0 => new ProductModel
+                            Products = p.Category.Products!.Select(i0 => new ProductModel
                             {
-                                AlternateAddresses = i0.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                                AlternateAddresses = i0.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                                 {
                                     Product = new ProductModel()
                                 }).ToList()
                             }).ToList()
                         },
-                        AlternateAddresses = i0.Product.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                        AlternateAddresses = i0.Product!.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                         {
                             Product = new ProductModel()
                         }).ToList()

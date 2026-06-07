@@ -47,7 +47,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
 
         protected override Expression VisitParameter(ParameterExpression node)
         {
-            Out(node.Name);
+            Out(node.Name!);
             return node;
         }
 
@@ -57,9 +57,9 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
             if (node.Expression == null && node.NodeType == ExpressionType.MemberAccess)
             {
                 Visit(node.Expression);
-                Out(node.Member.DeclaringType.Name + "." + node.Member.Name);
+                Out(node.Member.DeclaringType!.Name + "." + node.Member.Name);
             }
-            else if (node.Expression.NodeType == ExpressionType.Constant)
+            else if (node.Expression!.NodeType == ExpressionType.Constant)
             {
                 Visit(node.Expression);
                 if (!typeof(ConstantContainer).IsAssignableFrom(node.Expression?.Type))
@@ -92,7 +92,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
 
             object GetConstantValue()
                 => node.Value is ConstantContainer constantContainer
-                    ? constantContainer.Property
+                    ? constantContainer.Property!
                     : node.Value;
 
             string GetOutString(object constant)

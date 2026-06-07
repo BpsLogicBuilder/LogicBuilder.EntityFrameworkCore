@@ -12,7 +12,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models
     {
         public static string ToTypeString(this Type type)
             => type.IsGenericType && !type.IsGenericTypeDefinition
-                ? type.AssemblyQualifiedName
-                : type.FullName;
+                ? type.AssemblyQualifiedName!
+                : type.FullName!;
     }
 }

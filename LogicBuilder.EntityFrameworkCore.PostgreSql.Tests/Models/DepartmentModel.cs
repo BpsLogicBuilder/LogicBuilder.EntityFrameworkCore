@@ -9,9 +9,9 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models
 		public int DepartmentID { get; set; }
 
 		[StringLength(50, MinimumLength = 3)]
-		public string Name { get; set; }
+		public string Name { get; set; } = "";
 
-		[DataType(DataType.Currency)]
+        [DataType(DataType.Currency)]
 		public decimal Budget { get; set; }
 
 		[DataType(DataType.Date)]
@@ -23,8 +23,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models
 
         public uint Xmin { get; set; }
 
-        public string AdministratorName { get; set; }
+        public string AdministratorName { get; set; } = "";
 
-		public ICollection<CourseModel> Courses { get; set; }
+        public ICollection<CourseModel>? Courses { get; set; }
     }
 }

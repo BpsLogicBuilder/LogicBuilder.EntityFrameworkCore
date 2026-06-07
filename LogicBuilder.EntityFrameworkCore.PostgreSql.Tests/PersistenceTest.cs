@@ -8,6 +8,7 @@ using LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -71,9 +72,9 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
             var student2 = (await schoolRepository.GetAsync<StudentModel, Student>
             (
                 f => f.ID == id
-            )).SingleOrDefault();
+            )).Single();
 
-            Assert.Equal("First", student2.FirstName);
+            Assert.Equal("First", student2!.FirstName);
             Assert.True(success);
             student2.EntityState = LogicBuilder.Domain.EntityStateType.Deleted;
 
@@ -104,7 +105,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
             )).First();
 
             int id = instructor.ID;
-            instructor.OfficeAssignment.Location = "Location1";
+            instructor.OfficeAssignment!.Location = "Location1";
             instructor.EntityState = Domain.EntityStateType.Modified;
             instructor.OfficeAssignment.EntityState = Domain.EntityStateType.Modified;
 
@@ -122,7 +123,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
                 )
             )).First();
 
-            Assert.Equal("Location1", instructor2.OfficeAssignment.Location);
+            Assert.Equal("Location1", instructor2.OfficeAssignment!.Location);
             Assert.True(success);
             instructor.EntityState = Domain.EntityStateType.Modified;
             instructor.OfficeAssignment.EntityState = Domain.EntityStateType.Deleted;
@@ -147,6 +148,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
 
         #region Helpers
 
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -158,6 +160,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();

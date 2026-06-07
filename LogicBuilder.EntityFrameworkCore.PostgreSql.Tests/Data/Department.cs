@@ -12,7 +12,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Data
         public int DepartmentID { get; set; }
 
         [StringLength(50, MinimumLength = 3)]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [DataType(DataType.Currency)]
         [Column(TypeName = "money")]
@@ -30,7 +30,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Data
         public uint Xmin { get; set; }
 
         [ForeignKey("InstructorID")]
-        public Instructor Administrator { get; set; }
-        public ICollection<Course> Courses { get; set; }
+        public Instructor? Administrator { get; set; }
+        public ICollection<Course>? Courses { get; set; }
     }
 }

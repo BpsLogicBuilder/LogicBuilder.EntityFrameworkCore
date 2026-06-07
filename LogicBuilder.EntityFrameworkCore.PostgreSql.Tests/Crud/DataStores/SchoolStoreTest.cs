@@ -7,6 +7,7 @@ using LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Models.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -47,6 +48,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Crud.DataStores
         }
 
         #region Helpers
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -58,6 +60,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Crud.DataStores
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();

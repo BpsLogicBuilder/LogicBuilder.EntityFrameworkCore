@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -321,7 +322,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
                                 new AsQueryableDescriptor(new ParameterDescriptor("sel"))
 
                             ),
-                            typeof(double?).AssemblyQualifiedName
+                            typeof(double?).AssemblyQualifiedName!
                         )
                     },
                     typeof(LookUpsModel).AssemblyQualifiedName
@@ -333,7 +334,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
             => new
             (
                 selectorBody,
-                typeof(T).AssemblyQualifiedName,
+                typeof(T).AssemblyQualifiedName!,
                 parameterName,
                 typeof(TResult).AssemblyQualifiedName
             );
@@ -355,6 +356,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
             Assert.True(expected == resultExpression, string.Format("Expected expression '{0}' but the deserializer produced '{1}'", expected, resultExpression));
         }
 
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -367,6 +369,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();

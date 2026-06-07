@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -115,12 +116,12 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
 
             //assert
             Assert.Equal(2, categories.Count);
-            Assert.Equal(3, categories.First().Products.Count);
-            Assert.Equal(2, categories.Last().Products.Count);
-            var product1 = categories.First().Products.First(p => p.ProductName == "ProductOne");
-            var product4 = categories.Last().Products.First(p => p.ProductName == "ProductFour");
-            Assert.Equal(2, product1.AlternateAddresses.Count);
-            Assert.Equal(3, product4.AlternateAddresses.Count);
+            Assert.Equal(3, categories.First().Products!.Count);
+            Assert.Equal(2, categories.Last().Products!.Count);
+            var product1 = categories.First().Products!.First(p => p.ProductName == "ProductOne");
+            var product4 = categories.Last().Products!.First(p => p.ProductName == "ProductFour");
+            Assert.Equal(2, product1.AlternateAddresses!.Count);
+            Assert.Equal(3, product4.AlternateAddresses!.Count);
         }
 
         [Fact]
@@ -184,12 +185,12 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
 
             //assert
             Assert.Equal(2, categories.Count);
-            Assert.Equal(3, categories.First().Products.Count);
-            Assert.Equal(2, categories.Last().Products.Count);
-            var product1 = categories.First().Products.First(p => p.ProductID == 1);
-            var product4 = categories.Last().Products.First(p => p.ProductID == 4);
-            Assert.Equal(2, product1.AlternateAddresses.Count);
-            Assert.Equal(3, product4.AlternateAddresses.Count);
+            Assert.Equal(3, categories.First().Products!.Count);
+            Assert.Equal(2, categories.Last().Products!.Count);
+            var product1 = categories.First().Products!.First(p => p.ProductID == 1);
+            var product4 = categories.Last().Products!.First(p => p.ProductID == 4);
+            Assert.Equal(2, product1.AlternateAddresses!.Count);
+            Assert.Equal(3, product4.AlternateAddresses!.Count);
         }
 
         [Fact]
@@ -242,16 +243,16 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
 
             //assert
             Assert.Equal(2, categories.Count);
-            Assert.Equal(3, categories.First().Products.Count);
-            Assert.Equal(2, categories.Last().Products.Count);
-            Assert.Equal("ProductTwo", categories.First().Products.First().ProductName);
-            Assert.Equal("ProductOne", categories.First().Products.Last().ProductName);
-            Assert.Equal("ProductFour", categories.Last().Products.First().ProductName);
-            Assert.Equal("ProductFive", categories.Last().Products.Last().ProductName);
-            var product1 = categories.First().Products.First(p => p.ProductName == "ProductOne");
-            var product4 = categories.Last().Products.First(p => p.ProductName == "ProductFour");
-            Assert.Equal(2, product1.AlternateAddresses.Count);
-            Assert.Equal(3, product4.AlternateAddresses.Count);
+            Assert.Equal(3, categories.First().Products!.Count);
+            Assert.Equal(2, categories.Last().Products!.Count);
+            Assert.Equal("ProductTwo", categories.First().Products!.First().ProductName);
+            Assert.Equal("ProductOne", categories.First().Products!.Last().ProductName);
+            Assert.Equal("ProductFour", categories.Last().Products!.First().ProductName);
+            Assert.Equal("ProductFive", categories.Last().Products!.Last().ProductName);
+            var product1 = categories.First().Products!.First(p => p.ProductName == "ProductOne");
+            var product4 = categories.Last().Products!.First(p => p.ProductName == "ProductFour");
+            Assert.Equal(2, product1.AlternateAddresses!.Count);
+            Assert.Equal(3, product4.AlternateAddresses!.Count);
             Assert.Equal("CityTwo", product1.AlternateAddresses.First().City);
             Assert.Equal("CityOne", product1.AlternateAddresses.Last().City);
             Assert.Equal("CityThree", product4.AlternateAddresses.First().City);
@@ -335,16 +336,16 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
 
             //assert
             Assert.Equal(2, categories.Count);
-            Assert.Single(categories.First().Products);
-            Assert.Single(categories.Last().Products);
-            var product1 = categories.First().Products.Single();
-            var product4 = categories.Last().Products.Single();
+            Assert.Single(categories.First().Products!);
+            Assert.Single(categories.Last().Products!);
+            var product1 = categories.First().Products!.Single();
+            var product4 = categories.Last().Products!.Single();
             Assert.Equal("ProductOne", product1.ProductName);
             Assert.Equal("ProductFour", product4.ProductName);
-            Assert.Single(product1.AlternateAddresses);
-            Assert.Single(product4.AlternateAddresses);
-            var city1 = product1.AlternateAddresses.Single();
-            var city5 = product4.AlternateAddresses.Single();
+            Assert.Single(product1.AlternateAddresses!);
+            Assert.Single(product4.AlternateAddresses!);
+            var city1 = product1.AlternateAddresses!.Single();
+            var city5 = product4.AlternateAddresses!.Single();
             Assert.Equal("CityOne", city1.City);
             Assert.Equal("CityFive", city5.City);
         }
@@ -460,15 +461,16 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
 
             //assert
             Assert.True(products.Length > 0);
-            Assert.Equal("CityTwo", products[0].AlternateAddresses.First().City);
-            Assert.Equal("CityOne", products[0].AlternateAddresses.Last().City);
+            Assert.Equal("CityTwo", products[0].AlternateAddresses!.First().City);
+            Assert.Equal("CityOne", products[0].AlternateAddresses!.Last().City);
 
-            Assert.Equal("CityTwo", products[0].Category.Products.First().AlternateAddresses.First().City);
-            Assert.Equal("CityOne", products[0].Category.Products.First().AlternateAddresses.Last().City);
+            Assert.Equal("CityTwo", products[0].Category!.Products!.First().AlternateAddresses!.First().City);
+            Assert.Equal("CityOne", products[0].Category!.Products!.First().AlternateAddresses!.Last().City);
         }
 
         #region Helpers
 
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -479,6 +481,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();
