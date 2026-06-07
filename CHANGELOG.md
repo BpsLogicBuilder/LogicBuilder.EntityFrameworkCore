@@ -1,3 +1,4 @@
+* 2026-06-07 - AB#165: PostgreSQL tests working.
 * 2026-06-06 - AB#164: Clean up dotnet test commands in CI/CD pipelines.
 * 2026-06-06 - AB#164: Refactor CI and tests fto use ubuntu-latest.
 * 2026-06-05 - AB#163: Creating new project from LogicBuilder.EntityFrameworkCore.SqlServer.
