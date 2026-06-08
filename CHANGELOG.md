@@ -1,3 +1,4 @@
+* 2026-06-08 - AB#166: Removing --no-restore from all dotnet build commands.
 * 2026-06-08 - AB#166: Removing --no-restore from dotnet build command.
 * 2026-06-08 - AB#166: Correcting path to test project file name in workflow files.
 * 2026-06-08 - AB#166: Ensure null-safety and other SonarCloud recommendations.
