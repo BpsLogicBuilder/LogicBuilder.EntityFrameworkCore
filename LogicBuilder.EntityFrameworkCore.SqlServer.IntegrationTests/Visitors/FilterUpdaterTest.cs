@@ -38,7 +38,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Visitors
             var mapper = new Mapper(new MapperConfiguration(cfg => { }, NullLoggerFactory.Instance));
 
             // Act & Assert
-            var exception =Assert.Throws<InvalidOperationException>(() => FilterUpdater.UpdaterExpansion(queryable.Expression, expansions, mapper));
+            var exception = Assert.Throws<InvalidOperationException>(() => FilterUpdater.UpdaterExpansion(queryable.Expression, expansions, mapper));
             Assert.Equal("The last expansion in the list must have a filter.", exception.Message);
         }
     }

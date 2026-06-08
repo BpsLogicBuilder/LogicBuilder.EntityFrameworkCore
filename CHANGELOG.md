@@ -1,14 +1,18 @@
+* 2026-06-08 - AB#166: Correcting path to test project file name in workflow files.
+* 2026-06-08 - AB#166: Enable Nullable in LogicBuilder.EntityFrameworkCore.Tests.
+* 2026-06-08 - AB#166: Renamed main test project to LogicBuilder.EntityFrameworkCore.Tests.
 * 2026-06-07 - AB#165: Add Postgres tests to workflows and refine SchoolContext logic.
 * 2026-06-07 - AB#165: Ensure null-safety and other SonarCloud recommendations.
 * 2026-06-07 - AB#165: PostgreSQL tests working.
 * 2026-06-06 - AB#164: Clean up dotnet test commands in CI/CD pipelines.
-* 2026-06-06 - AB#164: Refactor CI and tests fto use ubuntu-latest.
+* 2026-06-06 - AB#164: Refactor CI and tests to use ubuntu-latest.
+* 2026-06-06 - AB#164: Refactor CI and tests to use ubuntu-latest.
 * 2026-06-05 - AB#163: Creating new project from LogicBuilder.EntityFrameworkCore.SqlServer.
 * 2026-05-11 - AB#132: Referencing LogicBuilder.Structures 8.0.1 for release.
 * 2026-05-10 - AB#134: Prevent projection to the same type.
 * 2026-04-01 - AB#99:  Added missing test coverage for GenericRepository.GetAsync.
 * 2026-04-01 - AB#99: Update package versions for release.
-* 2026-03-31 - AAB#102: Update CI coverage path, clean up tests and usings.
+* 2026-03-31 - AB#102: Update CI coverage path, clean up tests and usings.
 * 2026-03-31 - AB#102: Integrate SonarQube Cloud analysis into CI workflow.
 * 2026-03-30 - AB#95: Refactor tests and improve code coverage.
 * 2026-03-28 - AB#95: Remove obsolete comments from AddressModel class.
@@ -21,7 +25,7 @@
 * 2026-03-26 - AB#95: Enable nullable reference types and improve null-safety.
 * 2026-03-25 - AB#95: Refactor test infra, namespaces, and modernize test code.
 * 2026-03-25 - AB#97: Removing nuget.config.
-* 2026-03-25 - AB#97: Removing pacakge source mapping configuration from nuget.config.
+* 2026-03-25 - AB#97: Removing package source mapping configuration from nuget.config.
 * 2026-03-25 - AB#97: Restoring GitHub packages to nuget.config.
 * 2026-03-25 - AB#97: Removing GitHub packages from nuget.config.
 * 2026-03-25 - AB#97: Adding nuget.config to solve package source issues.

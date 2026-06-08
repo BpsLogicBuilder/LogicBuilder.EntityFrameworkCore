@@ -1,17 +1,18 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using LogicBuilder.EntityFrameworkCore.Mapping;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data;
+using LogicBuilder.EntityFrameworkCore.Tests.Data;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Lambda;
 using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
+namespace LogicBuilder.EntityFrameworkCore.Tests
 {
     public class CollectionExpressionTests
     {
@@ -46,7 +47,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                 new Product { AlternateAddresses = [new Address { City = "Redmond" }, new Address { City = "Seattle" }] }
             );
 
-            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Concat(LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Address[])");
+            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Concat(LogicBuilder.EntityFrameworkCore.Tests.Data.Address[])");
             Assert.Equal(4, result.Count());
         }
 
@@ -66,7 +67,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                 new Product { AlternateAddresses = [new Address { City = "Redmond" }, new Address { City = "Seattle" }] }
             );
 
-            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Except(LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Address[])");
+            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Except(LogicBuilder.EntityFrameworkCore.Tests.Data.Address[])");
             Assert.Single(result);
             Assert.Equal(new Address { City = "Redmond" }, result.Single());
         }
@@ -87,12 +88,12 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                 new Product { AlternateAddresses = [new Address { City = "Redmond" }, new Address { City = "Seattle" }] }
             );
 
-            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Union(LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Address[])");
+            AssertExpressionStringIsCorrect(expression, "$it => $it.AlternateAddresses.Union(LogicBuilder.EntityFrameworkCore.Tests.Data.Address[])");
             Assert.Equal(3, result.Count());
         }
 
 
-
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -103,6 +104,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             serviceProvider = new ServiceCollection()
@@ -126,7 +129,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                 new SelectorLambdaDescriptor
                 (
                     filterBody,
-                    typeof(T).AssemblyQualifiedName,
+                    typeof(T).AssemblyQualifiedName!,
                     defaultParameterName,
                     typeof(TResult).AssemblyQualifiedName
                 ),

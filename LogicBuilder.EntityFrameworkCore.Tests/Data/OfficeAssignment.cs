@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
+namespace LogicBuilder.EntityFrameworkCore.Tests.Data
 {
     [Table("OfficeAssignment")]
     public class OfficeAssignment : BaseDataClass
@@ -11,9 +11,9 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public int InstructorID { get; set; }
         [StringLength(50)]
         [Display(Name = "Office Location")]
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
         
-        public virtual Instructor Instructor { get; set; }
+        public virtual Instructor? Instructor { get; set; }
     }
 }

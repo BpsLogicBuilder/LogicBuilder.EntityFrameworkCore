@@ -51,7 +51,7 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAlItemsInTheExpectedOrder()
+        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAllItemsInTheExpectedOrder()
         {
             //arrange
             ISchoolRepository repository = serviceProvider.GetRequiredService<ISchoolRepository>();

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
+namespace LogicBuilder.EntityFrameworkCore.Tests.Data
 {
     [Table("Enrollment")]
     public class Enrollment : BaseDataClass
@@ -14,9 +14,9 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public Grade? Grade { get; set; }
 
         [ForeignKey("CourseID")]
-        public Course Course { get; set; }
+        public Course? Course { get; set; }
         [ForeignKey("StudentID")]
-        public Student Student { get; set; }
+        public Student? Student { get; set; }
     }
 
     public enum Grade

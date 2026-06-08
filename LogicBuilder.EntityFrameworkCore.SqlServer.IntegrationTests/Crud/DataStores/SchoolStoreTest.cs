@@ -32,7 +32,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.IntegrationTests.Crud.DataS
         #endregion Fields
 
         [Fact]
-        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAlItemsInTheExpectedOrder()
+        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAllItemsInTheExpectedOrder()
         {
             //arrange
             ISchoolStore store = serviceProvider.GetRequiredService<ISchoolStore>();
