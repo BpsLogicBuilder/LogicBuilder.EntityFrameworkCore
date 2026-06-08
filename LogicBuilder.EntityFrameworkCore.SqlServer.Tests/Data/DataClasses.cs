@@ -10,12 +10,12 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
     {
         public int ProductID { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
         [ForeignKey("SupplierAddress")]
         public int SupplierID { get; set; }
 
         public int CategoryID { get; set; }
-        public string QuantityPerUnit { get; set; }
+        public string? QuantityPerUnit { get; set; }
         public decimal? UnitPrice { get; set; }
         public double? Weight { get; set; }
         public float? Width { get; set; }
@@ -47,19 +47,19 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
 
         public Position Ranking { get; set; }
 
-        public Category Category { get; set; }
+        public Category? Category { get; set; }
 
-        public Address SupplierAddress { get; set; }
+        public Address? SupplierAddress { get; set; }
 
-        public int[] AlternateIDs { get; set; }
-        public ICollection<AlternateAddress> AlternateAddresses { get; set; }
+        public int[]? AlternateIDs { get; set; }
+        public ICollection<AlternateAddress>? AlternateAddresses { get; set; }
     }
 
     public class Category : BaseData
     {
         public int CategoryID { get; set; }
-        public string CategoryName { get; set; }
-        public ICollection<Product> Products { get; set; }
+        public string? CategoryName { get; set; }
+        public ICollection<Product>? Products { get; set; }
     }
 
     public class AlternateAddress : BaseData
@@ -67,11 +67,11 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public int AlternateAddressID { get; set; }
 
         public int ProductID { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
         [ForeignKey("ProductID")]
-        public Product Product { get; set; }
+        public Product? Product { get; set; }
 
     }
 
@@ -79,11 +79,11 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
     {
         public int AddressID { get; set; }
         
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj == null)
                 return false;
@@ -111,8 +111,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public Guid GuidProp { get; set; }
         public DateTimeOffset DateTimeProp { get; set; }
         public DateTimeOffset DateTimeOffsetProp { get; set; }
-        public byte[] ByteArrayProp { get; set; }
-        public byte[] ByteArrayPropWithNullValue { get; set; }
+        public byte[]? ByteArrayProp { get; set; }
+        public byte[]? ByteArrayPropWithNullValue { get; set; }
         public TimeSpan TimeSpanProp { get; set; }
         public decimal DecimalProp { get; set; }
         public double DoubleProp { get; set; }
@@ -120,7 +120,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public Single SingleProp { get; set; }
         public long LongProp { get; set; }
         public int IntProp { get; set; }
-        public string StringProp { get; set; }
+        public string? StringProp { get; set; }
         public bool BoolProp { get; set; }
 
         public ushort UShortProp { get; set; }
@@ -146,15 +146,15 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public ulong? NullableULongProp { get; set; }
         public char? NullableCharProp { get; set; }
 
-        public char[] CharArrayProp { get; set; }
+        public char[]? CharArrayProp { get; set; }
 
         public Position SimpleEnumProp { get; set; }
         public NumberBits FlagsEnumProp { get; set; }
         public LongPosition LongEnumProp { get; set; }
         public Position? NullableSimpleEnumProp { get; set; }
 
-        public Product EntityProp { get; set; }
-        public Address ComplexProp { get; set; }
+        public Product? EntityProp { get; set; }
+        public Address? ComplexProp { get; set; }
     }
 
     [Flags]

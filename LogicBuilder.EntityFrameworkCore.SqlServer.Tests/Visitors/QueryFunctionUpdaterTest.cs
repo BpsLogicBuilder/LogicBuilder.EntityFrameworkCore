@@ -21,11 +21,11 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Visitors
             };
             IQueryable<ProductModel> queryable = Enumerable.Empty<Product>().AsQueryable().Select(p => new ProductModel
             {
-                AlternateAddresses = p.AlternateAddresses.Select(i0 => new AlternateAddressModel
+                AlternateAddresses = p.AlternateAddresses!.Select(i0 => new AlternateAddressModel
                 {
                     Product = new ProductModel
                     {
-                        AlternateAddresses = i0.Product.AlternateAddresses.Select(i1 => new AlternateAddressModel
+                        AlternateAddresses = i0.Product!.AlternateAddresses!.Select(i1 => new AlternateAddressModel
                         {
                             Product = new ProductModel()
                         }).ToList()

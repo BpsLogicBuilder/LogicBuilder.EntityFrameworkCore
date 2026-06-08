@@ -14,10 +14,10 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
 		[DisplayFormat(NullDisplayText = "No grade")]
 		public Grade? Grade { get; set; }
 
-        public string GradeLetter { get; set; }
+        public string? GradeLetter { get; set; }
 
-        public string CourseTitle { get; set; }
+        public string? CourseTitle { get; set; }
 
-        public string StudentName { get; set; }
+        public string? StudentName { get; set; }
     }
 }

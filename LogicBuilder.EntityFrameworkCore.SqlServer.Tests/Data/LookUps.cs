@@ -11,14 +11,14 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
         public int LookUpsID { get; set; }
 
         [Required(AllowEmptyStrings = true)]
-        public string Text { get; set; }
+        public string Text { get; set; } = "";
 
         [MaxLength(100)]
         [Required]
-        public string ListName { get; set; }
+        public string ListName { get; set; } = "";
 
         [MaxLength(256)]
-        public string Value { get; set; }
+        public string? Value { get; set; }
 
         public double? NumericValue { get; set; }
 

@@ -9,11 +9,11 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
     {
         [Key]
         public int ProductID { get; set; }
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
         [Key]
         public int SupplierID { get; set; }
         public int CategoryID { get; set; }
-        public string QuantityPerUnit { get; set; }
+        public string? QuantityPerUnit { get; set; }
         public decimal? UnitPrice { get; set; }
         public double? Weight { get; set; }
         public float? Width { get; set; }
@@ -44,20 +44,20 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
 
         public PositionModel Ranking { get; set; }
 
-        public CategoryModel Category { get; set; }
+        public CategoryModel? Category { get; set; }
 
-        public AddressModel SupplierAddress { get; set; }
+        public AddressModel? SupplierAddress { get; set; }
 
-        public int[] AlternateIDs { get; set; }
-        public ICollection<AlternateAddressModel> AlternateAddresses { get; set; }
+        public int[]? AlternateIDs { get; set; }
+        public ICollection<AlternateAddressModel>? AlternateAddresses { get; set; }
     }
 
     public class CategoryModel : BaseModel
     {
         [Key]
         public int CategoryID { get; set; }
-        public string CategoryName { get; set; }
-        public ICollection<ProductModel> Products { get; set; }
+        public string? CategoryName { get; set; }
+        public ICollection<ProductModel>? Products { get; set; }
     }
 
     public class AlternateAddressModel : BaseModel
@@ -65,19 +65,19 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
         [Key]
         public int AlternateAddressID { get; set; }
         public int ProductID { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
-        public ProductModel Product { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
+        public ProductModel? Product { get; set; }
     }
 
     public class AddressModel : BaseModel
     {
         [Key]
         public int AddressID { get; set; }
-        public string City { get; set; }
-        public string State { get; set; }
-        public string ZipCode { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
     }
 
     public class DataTypesModel : BaseModel
@@ -86,8 +86,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
         public Guid GuidProp { get; set; }
         public DateTimeOffset DateTimeProp { get; set; }
         public DateTimeOffset DateTimeOffsetProp { get; set; }
-        public byte[] ByteArrayProp { get; set; }
-        public byte[] ByteArrayPropWithNullValue { get; set; }
+        public byte[]? ByteArrayProp { get; set; }
+        public byte[]? ByteArrayPropWithNullValue { get; set; }
         public TimeSpan TimeSpanProp { get; set; }
         public decimal DecimalProp { get; set; }
         public double DoubleProp { get; set; }
@@ -95,7 +95,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
         public Single SingleProp { get; set; }
         public long LongProp { get; set; }
         public int IntProp { get; set; }
-        public string StringProp { get; set; }
+        public string? StringProp { get; set; }
         public bool BoolProp { get; set; }
 
         public ushort UShortProp { get; set; }
@@ -121,15 +121,15 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
         public ulong? NullableULongProp { get; set; }
         public char? NullableCharProp { get; set; }
 
-        public char[] CharArrayProp { get; set; }
+        public char[]? CharArrayProp { get; set; }
 
         public PositionModel SimpleEnumProp { get; set; }
         public NumberBits FlagsEnumProp { get; set; }
         public LongPositionModel LongEnumProp { get; set; }
         public PositionModel? NullableSimpleEnumProp { get; set; }
 
-        public ProductModel EntityProp { get; set; }
-        public AddressModel ComplexProp { get; set; }
+        public ProductModel? EntityProp { get; set; }
+        public AddressModel? ComplexProp { get; set; }
     }
 
     [Flags]

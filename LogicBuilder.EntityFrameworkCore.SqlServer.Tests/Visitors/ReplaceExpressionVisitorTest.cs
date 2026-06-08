@@ -47,7 +47,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Visitors
             var visitor = new ReplaceExpressionVisitor(source.Body, target.Body);
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => visitor.Visit((Expression)null));
+            Assert.Throws<ArgumentNullException>(() => visitor.Visit((Expression)null!));
         }
     }
 }

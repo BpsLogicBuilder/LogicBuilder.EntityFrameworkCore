@@ -8,13 +8,18 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
 {
     public class DatabaseFixture : IAsyncLifetime
     {
-        private MsSqlContainer _msSqlContainer;
+        private MsSqlContainer? _msSqlContainer;
 
-        public string GetConnectionString(string initialCatalog) 
-            => new SqlConnectionStringBuilder(_msSqlContainer.GetConnectionString())
+        public string GetConnectionString(string initialCatalog)
+        {
+            if (_msSqlContainer == null)
+                throw new InvalidOperationException("Container is not initialized.");
+
+            return new SqlConnectionStringBuilder(_msSqlContainer.GetConnectionString())
             {
                 InitialCatalog = initialCatalog
             }.ToString();
+        }
 
         async ValueTask IAsyncLifetime.InitializeAsync()
         {
@@ -24,7 +29,9 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
 
         async ValueTask IAsyncDisposable.DisposeAsync()
         {
-            await _msSqlContainer.DisposeAsync();
+            if (_msSqlContainer != null)
+                await _msSqlContainer.DisposeAsync();
+
             GC.SuppressFinalize(this);
         }
     }

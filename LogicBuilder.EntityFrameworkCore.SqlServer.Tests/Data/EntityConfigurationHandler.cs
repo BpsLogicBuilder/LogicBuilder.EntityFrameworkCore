@@ -32,7 +32,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
                                 && !p.GetTypeInfo().IsGenericTypeDefinition
                                 && !p.GetTypeInfo().IsInterface).ToList().ForEach(t =>
                                 {
-                                    MethodInfo mi = t.GetMethod("Configure");
+                                    MethodInfo mi = t.GetMethod("Configure")!;
                                     mi.Invoke(Activator.CreateInstance(t), [modelBuilder]);
                                 });
         }

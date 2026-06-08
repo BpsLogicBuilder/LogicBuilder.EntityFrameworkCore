@@ -176,7 +176,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
             ];
             await repository.SaveGraphsAsync<DepartmentModel, Department>(departments);
 
-            IEnumerable<CourseModel> courses = departments.SelectMany(d => d.Courses);
+            IEnumerable<CourseModel> courses = departments.SelectMany(d => d.Courses ?? []);
             CourseAssignmentModel[] courseInstructors =
             [
                 new CourseAssignmentModel {

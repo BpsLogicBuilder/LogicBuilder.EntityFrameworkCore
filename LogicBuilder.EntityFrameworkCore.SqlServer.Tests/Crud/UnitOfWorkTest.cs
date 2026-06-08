@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -49,6 +50,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Crud
             Assert.Throws<ObjectDisposedException>(() => context.Students.ToList());
         }
 
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -61,6 +63,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Crud
 
         static MapperConfiguration MapperConfiguration;
 
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();

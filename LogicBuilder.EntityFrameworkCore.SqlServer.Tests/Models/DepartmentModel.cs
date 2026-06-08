@@ -9,7 +9,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
 		public int DepartmentID { get; set; }
 
 		[StringLength(50, MinimumLength = 3)]
-		public string Name { get; set; }
+		public string Name { get; set; } = "";
 
 		[DataType(DataType.Currency)]
 		public decimal Budget { get; set; }
@@ -21,10 +21,10 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Models
 
 		public int? InstructorID { get; set; }
 
-		public byte[] RowVersion { get; set; }
+		public byte[]? RowVersion { get; set; }
 
-        public string AdministratorName { get; set; }
+        public string? AdministratorName { get; set; }
 
-		public ICollection<CourseModel> Courses { get; set; }
+		public ICollection<CourseModel>? Courses { get; set; }
     }
 }
