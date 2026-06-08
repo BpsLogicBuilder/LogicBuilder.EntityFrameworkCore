@@ -7,6 +7,7 @@ using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
@@ -92,7 +93,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         }
 
 
-
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -103,6 +104,8 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             serviceProvider = new ServiceCollection()
@@ -126,7 +129,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 new SelectorLambdaDescriptor
                 (
                     filterBody,
-                    typeof(T).AssemblyQualifiedName,
+                    typeof(T).AssemblyQualifiedName!,
                     defaultParameterName,
                     typeof(TResult).AssemblyQualifiedName
                 ),

@@ -1,3 +1,4 @@
+* 2026-06-08 - AB#166: Enable Nullable in LogicBuilder.EntityFrameworkCore.Tests.
 * 2026-06-08 - AB#166: Renamed main test project to LogicBuilder.EntityFrameworkCore.Tests.
 * 2026-06-07 - AB#165: Add Postgres tests to workflows and refine SchoolContext logic.
 * 2026-06-07 - AB#165: Ensure null-safety and other SonarCloud recommendations.

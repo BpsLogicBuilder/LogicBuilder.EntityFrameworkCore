@@ -9,6 +9,7 @@ using LogicBuilder.Expressions.Utils.Strutures;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
@@ -1394,7 +1395,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -1405,6 +1406,8 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             serviceProvider = new ServiceCollection()
@@ -1428,7 +1431,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 new SelectorLambdaDescriptor
                 (
                     filterBody,
-                    typeof(T).AssemblyQualifiedName,
+                    typeof(T).AssemblyQualifiedName!,
                     defaultParameterName,
                     typeof(TResult).AssemblyQualifiedName
                 ),
@@ -1454,72 +1457,72 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         private static IQueryable<Category> GetCategories()
          => new Category[]
             {
-                new Category
+                new()
                 {
                     CategoryID = 1,
                     CategoryName = "CategoryOne",
-                    Products = new Product[]
-                    {
+                    Products =
+                    [
                         new Product
                         {
                             ProductID = 1,
                             ProductName = "ProductOne",
-                            AlternateAddresses = new Address[]
-                            {
+                            AlternateAddresses =
+                            [
                                 new Address { AddressID = 1, City = "CityOne" },
                                 new Address { AddressID = 2, City = "CityTwo"  },
-                            }
+                            ]
                         },
                         new Product
                         {
                             ProductID = 2,
                             ProductName = "ProductTwo",
-                            AlternateAddresses = new Address[]
-                            {
+                            AlternateAddresses =
+                            [
                                 new Address { AddressID = 3, City = "CityThree" },
                                 new Address { AddressID = 4, City = "CityFour"  },
-                            }
+                            ]
                         }
-                    }
+                    ]
                 },
-                new Category
+                new()
                 {
                     CategoryID = 2,
                     CategoryName = "CategoryTwo",
-                    Products =  new Product[]
-                    {
+                    Products =
+                    [
                         new Product
                         {
-                            AlternateAddresses = Array.Empty<Address>()
+                            AlternateAddresses = []
                         }
-                    }
+                    ]
                 }
             }.AsQueryable();
 
         private static IQueryable<Product> GetProducts()
          => new Product[]
          {
-             new Product
+             new()
              {
                  ProductID = 1,
                  ProductName = "ProductOne",
                  SupplierID = 3,
-                 AlternateAddresses = new Address[]
-                 {
+                 AlternateAddresses =
+                 [
                      new Address { AddressID = 1, City = "CityOne", State = "OH" },
                      new Address { AddressID = 2, City = "CityTwo", State = "MI"   },
-                 }
+                 ]
              },
-             new Product
+             new()
              {
                  ProductID = 2,
                  ProductName = "ProductTwo",
                  SupplierID = 3,
-                 AlternateAddresses = new Address[]
-                 {
+                 AlternateAddresses =
+                 [
                      new Address { AddressID = 3, City = "CityThree", State = "OH"  },
                      new Address { AddressID = 4, City = "CityFour", State = "MI"   },
-                 }
+                 ]
              }
          }.AsQueryable();
     }
