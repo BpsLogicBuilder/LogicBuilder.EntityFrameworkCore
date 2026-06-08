@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -86,7 +87,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
 
             //assert
             Assert.NotEmpty(students);
-            Assert.NotEmpty(students.First().Enrollments);
+            Assert.NotEmpty(students.First().Enrollments!);
         }
 
 
@@ -274,7 +275,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
                 )
             )).First();
             int id = instructor.ID;
-            instructor.OfficeAssignment.Location = "UpdatedLocation";
+            instructor.OfficeAssignment!.Location = "UpdatedLocation";
             instructor.EntityState = Domain.EntityStateType.Modified;
             instructor.OfficeAssignment.EntityState = Domain.EntityStateType.Modified;
 
@@ -295,7 +296,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
 
             //assert
             Assert.True(result);
-            Assert.Equal("UpdatedLocation", savedInstructor.OfficeAssignment.Location);
+            Assert.Equal("UpdatedLocation", savedInstructor.OfficeAssignment!.Location);
         }
 
         [Fact]
@@ -318,7 +319,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
 
             foreach (var instructor in instructors.Where(i => i.OfficeAssignment != null))
             {
-                instructor.OfficeAssignment.Location += "_Updated";
+                instructor.OfficeAssignment!.Location += "_Updated";
                 instructor.EntityState = Domain.EntityStateType.Modified;
                 instructor.OfficeAssignment.EntityState = Domain.EntityStateType.Modified;
             }
@@ -501,6 +502,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
 
         #region Helpers
 
+        [MemberNotNull(nameof(MapperConfiguration))]
         private static void InitializeMapperConfiguration()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
@@ -512,6 +514,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
         }
 
         static MapperConfiguration MapperConfiguration;
+
+        [MemberNotNull(nameof(serviceProvider))]
         private void Initialize()
         {
             MapperConfiguration.AssertConfigurationIsValid();
