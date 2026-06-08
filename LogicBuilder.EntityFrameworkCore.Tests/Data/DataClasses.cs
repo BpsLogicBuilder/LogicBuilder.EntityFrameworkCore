@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
+namespace LogicBuilder.EntityFrameworkCore.Tests.Data
 {
     public class Product
     {

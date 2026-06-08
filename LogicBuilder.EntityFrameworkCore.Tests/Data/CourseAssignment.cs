@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
+namespace LogicBuilder.EntityFrameworkCore.Tests.Data
 {
     [Table("CourseAssignment")]
     public class CourseAssignment : BaseDataClass

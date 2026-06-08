@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using LogicBuilder.EntityFrameworkCore.Mapping;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data;
+using LogicBuilder.EntityFrameworkCore.Tests.Data;
 using LogicBuilder.Expressions.Utils;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Lambda;
 using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
@@ -13,7 +13,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
+namespace LogicBuilder.EntityFrameworkCore.Tests
 {
     public class QueryableExpressionTests
     {

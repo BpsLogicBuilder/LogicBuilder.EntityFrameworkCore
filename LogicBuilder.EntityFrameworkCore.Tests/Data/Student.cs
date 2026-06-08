@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
+namespace LogicBuilder.EntityFrameworkCore.Tests.Data
 {
-    [Table("Instructor")]
-    public class Instructor : BaseDataClass
+    [Table("Student")]
+    public class Student : BaseDataClass
     {
         [Key]
         public int ID { get; set; }
@@ -22,10 +22,11 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data
 
         [DataType(DataType.Date)]
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Hire Date")]
-        public DateTime HireDate { get; set; }
+        [Display(Name = "Enrollment Date")]
+        public DateTime EnrollmentDate { get; set; }
 
-        public ICollection<CourseAssignment> Courses { get; set; }
-        public OfficeAssignment OfficeAssignment { get; set; }
+
+        public ICollection<Enrollment> Enrollments { get; set; }
     }
+
 }

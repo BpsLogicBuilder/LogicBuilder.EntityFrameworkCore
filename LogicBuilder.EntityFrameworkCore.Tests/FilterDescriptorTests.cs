@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.Extensions.ExpressionMapping;
 using LogicBuilder.EntityFrameworkCore.Mapping;
-using LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data;
+using LogicBuilder.EntityFrameworkCore.Tests.Data;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Lambda;
 using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +14,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
 
-namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
+namespace LogicBuilder.EntityFrameworkCore.Tests
 {
     public class FilterDescriptorTests
     {
@@ -5379,7 +5379,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
             var values = (IList<Position>)constant.Value;
 
             //assert
-            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Position].Contains($it.SimpleEnumProp)");
+            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position].Contains($it.SimpleEnumProp)");
             Assert.Equal([Position.First, Position.Second], values);
 
             Expression<Func<T, bool>> CreateFilter<T>()
@@ -5402,7 +5402,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
             var values = (IList<Position?>)constant.Value;
 
             //assert
-            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
+            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
             Assert.Equal([Position.First, Position.Second], values);
 
             Expression<Func<T, bool>> CreateFilter<T>()
@@ -5425,7 +5425,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
             var values = (IList<Position?>)constant.Value;
 
             //assert
-            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
+            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
             Assert.Equal([Position.First, null], values);
 
             Expression<Func<T, bool>> CreateFilter<T>()
@@ -6405,7 +6405,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                         new ParameterDescriptor(parameterName),
                         typeof(Product).AssemblyQualifiedName
                     ),
-                    "$it => IIF(($it Is LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Product), True, False)"
+                    "$it => IIF(($it Is LogicBuilder.EntityFrameworkCore.Tests.Data.Product), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
@@ -6423,7 +6423,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                         new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName)),
                         typeof(Category).AssemblyQualifiedName
                     ),
-                    "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Category), True, False)"
+                    "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.Tests.Data.Category), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
@@ -6432,7 +6432,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                         new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName)),
                         typeof(DerivedCategory).AssemblyQualifiedName
                     ),
-                    "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.DerivedCategory), True, False)"
+                    "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.Tests.Data.DerivedCategory), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
@@ -6441,7 +6441,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
                         new MemberSelectorDescriptor("Ranking", new ParameterDescriptor(parameterName)),
                         typeof(Position).AssemblyQualifiedName
                     ),
-                    "$it => IIF(($it.Ranking Is LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Position), True, False)"
+                    "$it => IIF(($it.Ranking Is LogicBuilder.EntityFrameworkCore.Tests.Data.Position), True, False)"
                 ),
             ];
 
@@ -7553,7 +7553,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
             var filter = CreateFilter<DataTypes>();
 
             //assert
-            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Data.Position].Contains($it.SimpleEnumProp)");
+            AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position].Contains($it.SimpleEnumProp)");
 
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
