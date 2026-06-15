@@ -1,0 +1,13 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Data
+{
+    [Table("CourseAssignment")]
+    public class CourseAssignment : BaseDataClass
+    {
+        public int InstructorID { get; set; }
+        public int CourseID { get; set; }
+        public Instructor? Instructor { get; set; }
+        public Course? Course { get; set; }
+    }
+}

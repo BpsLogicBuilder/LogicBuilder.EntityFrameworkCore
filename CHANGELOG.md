@@ -1,4 +1,5 @@
-* 2026-06-15 - AB#166:  Add CosmosDB tests for DataClassesRepository.
+* 2026-06-15 - AB#166: Add Contoso test entities.
+* 2026-06-15 - AB#166: Add CosmosDB tests for DataClassesRepository.
 * 2026-06-08 - AB#166: Addressing SonarCloud recommendations.
 * 2026-06-08 - AB#166: Removing --no-restore from all dotnet build commands.
 * 2026-06-08 - AB#166: Removing --no-restore from dotnet build command.
