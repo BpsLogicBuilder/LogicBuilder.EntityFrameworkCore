@@ -6,6 +6,7 @@ using LogicBuilder.EntityFrameworkCore.Crud.DataStores;
 using LogicBuilder.EntityFrameworkCore.Visitors;
 using LogicBuilder.Expressions.Utils;
 using LogicBuilder.Expressions.Utils.Expansions;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace LogicBuilder.EntityFrameworkCore.Repositories
             where TModel : class, IBaseModel
             where TData : class, IBaseData
         {
-            return [.. mapper.ProjectTo
+            return await mapper.ProjectTo
             (
                 await store.GetQueryableAsync
                 (
@@ -34,7 +35,8 @@ namespace LogicBuilder.EntityFrameworkCore.Repositories
                 null,
                 GetIncludes<TModel>(selectExpandDefinition)
             )
-            .UpdateQueryable(selectExpandDefinition!.GetExpansions(typeof(TModel)), mapper)];//GetExpansions returns empty list if selectExpandDefinition is null
+            .UpdateQueryable(selectExpandDefinition!.GetExpansions(typeof(TModel)), mapper)//GetExpansions returns empty list if selectExpandDefinition is null
+            .ToListAsync();
 
             Func<IQueryable<TData>, IQueryable<TData>>? GetQueryFunc()
                 => mapper.MapExpression<Expression<Func<IQueryable<TData>, IQueryable<TData>>>>(queryFunc)?.Compile();
@@ -87,7 +89,7 @@ namespace LogicBuilder.EntityFrameworkCore.Repositories
         private static MethodInfo GetGenericMethodInfo(this string methodName)
            => typeof(StoreHelpers).GetMethods
             (
-               BindingFlags.NonPublic// NOSONAR accessing a genric method via reflection is necessary in this case
+               BindingFlags.NonPublic// NOSONAR accessing a generic method via reflection is necessary in this case
                | BindingFlags.Static
             ).Single(m => m.Name == methodName && m.IsGenericMethod);
 

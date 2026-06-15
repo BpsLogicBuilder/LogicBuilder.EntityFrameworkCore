@@ -23,7 +23,8 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests
 
         async ValueTask IAsyncLifetime.InitializeAsync()
         {
-            _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2025-latest").Build();
+            _msSqlContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server@sha256:d975fb1ea4c25c95309d7813b9f9133cde880fda16da24ab1379e277a9b2395b")//2026-latest
+                                .Build();
             await _msSqlContainer.StartAsync();
         }
 
