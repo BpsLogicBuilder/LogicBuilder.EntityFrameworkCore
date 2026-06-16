@@ -23,7 +23,8 @@ namespace LogicBuilder.EntityFrameworkCore.PostgreSql.Tests
 
         async ValueTask IAsyncLifetime.InitializeAsync()
         {
-            _postgreSqlContainer = new PostgreSqlBuilder("postgres:18-alpine").Build();
+            _postgreSqlContainer = new PostgreSqlBuilder("postgres@sha256:96d56f7f57c6aacd1fcb908bc83b345ec5f83231ee486dd66a1baadce274db88")//18=alpine
+                                        .Build();
             await _postgreSqlContainer.StartAsync();
         }
 
