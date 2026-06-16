@@ -5,11 +5,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Data
 {
-    [Table("Department")]
     public class Department : BaseDataClass
     {
-        [Key]
-        public int DepartmentID { get; set; }
+        public string DepartmentID { get; set; } = "";
 
         [StringLength(50, MinimumLength = 3)]
         public string Name { get; set; } = "";
@@ -19,18 +17,14 @@ namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Data
         public decimal Budget { get; set; }
 
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
-        [Display(Name = "Start Date")]
         public DateTime StartDate { get; set; }
 
-        public int? InstructorID { get; set; }
+        public string? InstructorID { get; set; }
 
-        [ConcurrencyCheck]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public uint Xmin { get; set; }
+        public string ETag { get; set; } = "";
 
-        [ForeignKey("InstructorID")]
-        public Instructor? Administrator { get; set; }
+        public string? AdministratorName { get; set; }
+
         public ICollection<Course>? Courses { get; set; }
     }
 }

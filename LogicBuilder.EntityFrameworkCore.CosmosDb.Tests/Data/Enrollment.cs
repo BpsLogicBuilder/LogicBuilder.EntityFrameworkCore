@@ -1,22 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Data
+﻿namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Data
 {
-    [Table("Enrollment")]
-    public class Enrollment : BaseDataClass
+    public class Enrollment
     {
-        [Key]
-        public int EnrollmentID { get; set; }
-        public int CourseID { get; set; }
-        public int StudentID { get; set; }
-        [DisplayFormat(NullDisplayText = "No grade")]
+        public string CourseID { get; set; } = "";
         public Grade? Grade { get; set; }
-
-        [ForeignKey("CourseID")]
-        public Course? Course { get; set; }
-        [ForeignKey("StudentID")]
-        public Student? Student { get; set; }
+        public string CourseTitle { get; set; } = "";
     }
 
     public enum Grade

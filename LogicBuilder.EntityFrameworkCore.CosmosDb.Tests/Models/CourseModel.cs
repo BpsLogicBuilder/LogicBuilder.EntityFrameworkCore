@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 
 namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Models
@@ -7,18 +6,14 @@ namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Models
     public class CourseModel : BaseModelClass
     {
 		[Display(Name = "Number")]
-		public int CourseID { get; set; }
+        public string CourseID { get; set; } = "";
 
-		[StringLength(50, MinimumLength = 3)]
+        [StringLength(50, MinimumLength = 3)]
 		public string Title { get; set; } = "";
 
 		[Range(0, 5)]
 		public int Credits { get; set; }
 
-		public int DepartmentID { get; set; }
-
-        public string DepartmentName { get; set; } = "";
-
-        public ICollection<CourseAssignmentModel>? Assignments { get; set; }
+		public string DepartmentID { get; set; } = "";
     }
 }

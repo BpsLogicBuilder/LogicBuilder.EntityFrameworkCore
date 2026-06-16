@@ -3,21 +3,14 @@
 
 namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Models
 {
-    public class EnrollmentModel : BaseModelClass
+    public class EnrollmentModel
     {
-		public int EnrollmentID { get; set; }
+		public string CourseID { get; set; } = "";
 
-		public int CourseID { get; set; }
-
-		public int StudentID { get; set; }
-
-		[DisplayFormat(NullDisplayText = "No grade")]
-		public Grade? Grade { get; set; }
+        public Grade? Grade { get; set; }
 
         public string GradeLetter { get; set; } = "";
 
         public string CourseTitle { get; set; } = "";
-
-        public string StudentName { get; set; } = "";
     }
 }

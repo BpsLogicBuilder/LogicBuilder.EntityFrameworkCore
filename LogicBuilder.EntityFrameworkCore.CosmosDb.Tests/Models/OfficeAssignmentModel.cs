@@ -3,12 +3,11 @@
 
 namespace LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.Models
 {
-    public class OfficeAssignmentModel : BaseModelClass
+    public class OfficeAssignmentModel
     {
-		public int InstructorID { get; set; }
+		public string InstructorID { get; set; } = "";
 
-		[StringLength(50)]
-		[Display(Name = "Office Location")]
+        [StringLength(50)]
 		public string Location { get; set; } = "";
     }
 }
