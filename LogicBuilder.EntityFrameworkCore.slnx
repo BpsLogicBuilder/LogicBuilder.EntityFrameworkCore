@@ -8,8 +8,6 @@
   <Project Path="LogicBuilder.EntityFrameworkCore.CosmosDb.Tests/LogicBuilder.EntityFrameworkCore.CosmosDb.Tests.csproj" Id="667bb379-c3c7-4ce0-bff3-a6d3fbdf347d" />
   <Project Path="LogicBuilder.EntityFrameworkCore.PostgreSql.Tests/LogicBuilder.EntityFrameworkCore.PostgreSql.Tests.csproj" Id="5424c435-0d4a-4c8c-bff3-d89e166cfec0" />
   <Project Path="LogicBuilder.EntityFrameworkCore.SqlServer.Tests/LogicBuilder.EntityFrameworkCore.SqlServer.Tests.csproj" />
-  <Project Path="LogicBuilder.EntityFrameworkCore.Tests/LogicBuilder.EntityFrameworkCore.Tests.csproj">
-    <Build Solution="Debug|*" Project="false" />
-  </Project>
+  <Project Path="LogicBuilder.EntityFrameworkCore.Tests/LogicBuilder.EntityFrameworkCore.Tests.csproj" />
   <Project Path="LogicBuilder.EntityFrameworkCore/LogicBuilder.EntityFrameworkCore.csproj" />
 </Solution>

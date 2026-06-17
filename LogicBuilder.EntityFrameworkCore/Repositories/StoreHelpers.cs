@@ -29,7 +29,7 @@ namespace LogicBuilder.EntityFrameworkCore.Repositories
             (
                 await store.GetQueryableAsync
                 (
-                    Getfilter(),
+                    GetFilter(),
                     GetQueryFunc()
                 ),
                 null,
@@ -41,7 +41,7 @@ namespace LogicBuilder.EntityFrameworkCore.Repositories
             Func<IQueryable<TData>, IQueryable<TData>>? GetQueryFunc()
                 => mapper.MapExpression<Expression<Func<IQueryable<TData>, IQueryable<TData>>>>(queryFunc)?.Compile();
 
-            Expression<Func<TData, bool>> Getfilter()
+            Expression<Func<TData, bool>> GetFilter()
                 => mapper.MapExpression<Expression<Func<TData, bool>>>(filter);
         }
 

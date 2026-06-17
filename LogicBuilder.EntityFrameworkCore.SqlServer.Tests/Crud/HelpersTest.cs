@@ -225,7 +225,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Crud
         }
 
         [Fact]
-        public async Task ConvertState_WithInvalidtate_Throws()
+        public async Task ConvertState_WithInvalidState_Throws()
         {
             //arrange
             SchoolContext context = serviceProvider.GetRequiredService<SchoolContext>();

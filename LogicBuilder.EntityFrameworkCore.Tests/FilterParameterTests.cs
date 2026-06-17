@@ -4,6 +4,7 @@ using LogicBuilder.EntityFrameworkCore.Mapping;
 using LogicBuilder.EntityFrameworkCore.Tests.Data;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Lambda;
 using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
+using LogicBuilder.Forms.Parameters.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OData.Edm;
 using System;
@@ -17,21 +18,17 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.Tests
 {
-    public class FilterDescriptorTests
+    public class FilterParameterTests
     {
-        static FilterDescriptorTests()
-        {
-            InitializeMapperConfiguration();
-        }
-
-        public FilterDescriptorTests()
+        static FilterParameterTests()
         {
             Initialize();
         }
 
         #region Fields
-        private IServiceProvider serviceProvider;
+        private static IServiceProvider serviceProvider;
         private static readonly string parameterName = "$it";
+        private static MapperConfiguration MapperConfiguration;
         #endregion Fields
 
         #region Inequalities
@@ -49,13 +46,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName == null)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     )
                 );
         }
@@ -74,13 +71,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName == \"Doritos\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Doritos", typeof(string).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Doritos", typeof(string))
                     )
                 );
         }
@@ -89,7 +86,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, true)]
         [InlineData("", true)]
         [InlineData("Doritos", false)]
-        public void NotEqualDescriptor(string? productName, bool expected)
+        public void NotEqualOperatorParameters(string? productName, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -99,13 +96,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName != \"Doritos\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Doritos", typeof(string).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Doritos", typeof(string))
                     )
                 );
         }
@@ -114,7 +111,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, false)]
         [InlineData(5.01, true)]
         [InlineData(4.99, false)]
-        public void GreaterThanDescriptor(object? unitPrice, bool expected)
+        public void GreaterThanOperatorParameters(object? unitPrice, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -124,13 +121,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice > Convert({0:0.00}))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -139,7 +136,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, false)]
         [InlineData(5.0, true)]
         [InlineData(4.99, false)]
-        public void GreaterThanEqualDescriptor(object? unitPrice, bool expected)
+        public void GreaterThanEqualOperatorParameters(object? unitPrice, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -149,13 +146,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice >= Convert({0:0.00}))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -164,7 +161,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, false)]
         [InlineData(4.99, true)]
         [InlineData(5.01, false)]
-        public void LessThanDescriptor(object? unitPrice, bool expected)
+        public void LessThanOperatorParameters(object? unitPrice, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -174,13 +171,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice < Convert({0:0.00}))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -189,7 +186,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, false)]
         [InlineData(5.0, true)]
         [InlineData(5.01, false)]
-        public void LessThanOrEqualDescriptor(object? unitPrice, bool expected)
+        public void LessThanOrEqualOperatorParameters(object? unitPrice, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -199,13 +196,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice <= Convert({0:0.00}))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -221,20 +218,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice <= Convert({0:0.00}))", -5.0));
             Assert.False(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(-5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(-5.00m, typeof(decimal))
                     )
                 );
         }
 
-        public class DateTimeOffsetInequalitiesTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateTimeOffsetInequalitiesTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -243,44 +240,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateTimeOffsetInequalitiesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeOffsetProp == $it.DateTimeOffsetProp)"
                 ),
                 new DateTimeOffsetInequalitiesTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeOffsetProp != $it.DateTimeOffsetProp)"
                 ),
                 new DateTimeOffsetInequalitiesTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeOffsetProp >= $it.DateTimeOffsetProp)"
                 ),
                 new DateTimeOffsetInequalitiesTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeOffsetProp <= $it.DateTimeOffsetProp)"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(DateTimeOffsetInequalities_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateTimeOffsetInequalities_Data), MemberType = typeof(FilterParameterTests))]
         public void DateTimeOffsetInequalities(DateTimeOffsetInequalitiesTheoryData theoryData)
         {
             //act
@@ -298,9 +295,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             }
         }
 
-        public class DateInEqualitiesTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateInEqualitiesTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -309,44 +306,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateInEqualitiesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeProp == $it.DateTimeProp)"
                 ),
                 new DateInEqualitiesTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeProp != $it.DateTimeProp)"
                 ),
                 new DateInEqualitiesTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeProp >= $it.DateTimeProp)"
                 ),
                 new DateInEqualitiesTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.DateTimeProp <= $it.DateTimeProp)"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(DateInEqualities_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateInEqualities_Data), MemberType = typeof(FilterParameterTests))]
         public void DateInEqualities(DateInEqualitiesTheoryData theoryData)
         {
             //act
@@ -375,20 +372,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => (($it.UnitPrice == Convert(5.00)) OrElse ($it.CategoryID == 0))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(5.00m, typeof(decimal))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(0, typeof(int).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(0, typeof(int))
                         )
                     )
                 );
@@ -403,13 +400,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.Discontinued == Convert(True))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(true, typeof(bool).AssemblyQualifiedName)
+                        new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(true, typeof(bool))
                     )
                 );
         }
@@ -423,13 +420,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.Discontinued == $it.Discontinued)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters(parameterName))
                     )
                 );
         }
@@ -438,7 +435,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, null, false)]
         [InlineData(5.0, 0, true)]
         [InlineData(null, 1, false)]
-        public void OrDescriptor(object? unitPrice, object? unitsInStock, bool expected)
+        public void OrOperatorParameters(object? unitPrice, object? unitsInStock, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -448,20 +445,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice == Convert({0:0.00})) OrElse (Convert($it.UnitsInStock) == Convert({1})))", 5.0, 0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(5.00m, typeof(decimal))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)), typeof(int?).AssemblyQualifiedName!),
-                            new ConstantDescriptor(0, typeof(int).AssemblyQualifiedName)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)), typeof(int?)),
+                            new ConstantOperatorParameters(0, typeof(int))
                         )
                     )
                 );
@@ -471,7 +468,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         [InlineData(null, null, false)]
         [InlineData(5.0, 10, true)]
         [InlineData(null, 1, false)]
-        public void AndDescriptor(object? unitPrice, object? unitsInStock, bool expected)
+        public void AndOperatorParameters(object? unitPrice, object? unitsInStock, bool expected)
         {
             //act
             var filter = CreateFilter<Product>();
@@ -481,20 +478,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice == Convert({0:0.00})) AndAlso (Convert($it.UnitsInStock) == Convert({1:0.00})))", 5.0, 10.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(5.00m, typeof(decimal))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)), typeof(decimal?).AssemblyQualifiedName!),
-                            new ConstantDescriptor(10.00m, typeof(decimal).AssemblyQualifiedName)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)), typeof(decimal?)),
+                            new ConstantOperatorParameters(10.00m, typeof(decimal))
                         )
                     )
                 );
@@ -514,15 +511,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => Not(($it.UnitPrice == Convert({0:0.00})))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new NotDescriptor
+                    new NotOperatorParameters
                     (
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(5.00m, typeof(decimal))
                         )
                     )
                 );
@@ -541,12 +538,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => Convert(Not($it.Discontinued))");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new NotDescriptor
+                    new NotOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters(parameterName))
                     )
                 );
         }
@@ -560,16 +557,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => Convert(Not(Not(Not($it.Discontinued))))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new NotDescriptor
+                    new NotOperatorParameters
                     (
-                        new NotDescriptor
+                        new NotOperatorParameters
                         (
-                            new NotDescriptor
+                            new NotOperatorParameters
                             (
-                                new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters(parameterName))
                             )
                         )
                     )
@@ -592,17 +589,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice - Convert({0:0.00})) < Convert({1:0.00}))", 1.0, 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new SubtractBinaryDescriptor
+                        new SubtractBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1.00m, typeof(decimal))
                         ),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -616,17 +613,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice + Convert({0:0.00})) < Convert({1:0.00}))", 1.0, 5.0));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new AddBinaryDescriptor
+                        new AddBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1.00m, typeof(decimal))
                         ),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -640,17 +637,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice * Convert({0:0.00})) < Convert({1:0.00}))", 1.0, 5.0));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new MultiplyBinaryDescriptor
+                        new MultiplyBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1.00m, typeof(decimal))
                         ),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -664,17 +661,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice / Convert({0:0.00})) < Convert({1:0.00}))", 1.0, 5.0));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new DivideBinaryDescriptor
+                        new DivideBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1.00m, typeof(decimal))
                         ),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
@@ -688,26 +685,26 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.UnitPrice % Convert({0:0.00})) < Convert({1:0.00}))", 1.0, 5.0));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ModuloBinaryDescriptor
+                        new ModuloBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1.00m, typeof(decimal))
                         ),
-                        new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                        new ConstantOperatorParameters(5.00m, typeof(decimal))
                     )
                 );
         }
         #endregion Arithmetic Operators
 
         #region NULL handling
-        public class NullHandlingTheoryData(DescriptorBase filterBody, object? unitsInStock, object? unitsOnOrder, bool expectedResult)
+        public class NullHandlingTheoryData(IExpressionParameter filterBody, object? unitsInStock, object? unitsOnOrder, bool expectedResult)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public object? UnitsInStock { get; } = unitsInStock;
             public object? UnitsOnOrder { get; } = unitsOnOrder;
             public bool ExpectedResult { get; } = expectedResult;
@@ -718,10 +715,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -729,10 +726,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -740,10 +737,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -751,10 +748,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -762,10 +759,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -773,10 +770,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -784,14 +781,14 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new AddBinaryDescriptor
+                        new AddBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                            new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                            new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                         ),
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -799,15 +796,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubtractBinaryDescriptor
+                        new SubtractBinaryOperatorParameters
 
                         (
-                            new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                            new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                            new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                         ),
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -815,15 +812,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MultiplyBinaryDescriptor
+                        new MultiplyBinaryOperatorParameters
 
                         (
-                            new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                            new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                            new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                         ),
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -831,14 +828,14 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DivideBinaryDescriptor
+                        new DivideBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                            new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                            new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                         ),
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -846,14 +843,14 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ModuloBinaryDescriptor
+                        new ModuloBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                            new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                            new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                         ),
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName))
                     ),
                     null,
                     null,
@@ -861,10 +858,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     1,
                     null,
@@ -872,10 +869,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new NullHandlingTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("UnitsOnOrder", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("UnitsOnOrder", new ParameterOperatorParameters(parameterName))
                     ),
                     1,
                     1,
@@ -884,7 +881,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(NullHandling_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(NullHandling_Data), MemberType = typeof(FilterParameterTests))]
         public void NullHandling(NullHandlingTheoryData theoryData)
         {
             //act
@@ -901,9 +898,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class NullHandling_LiteralNullTheoryData(DescriptorBase filterBody, object? unitsInStock, bool expectedResult)
+        public class NullHandling_LiteralNullTheoryData(IExpressionParameter filterBody, object? unitsInStock, bool expectedResult)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public object? UnitsInStock { get; } = unitsInStock;
             public bool ExpectedResult { get; } = expectedResult;
         }
@@ -913,20 +910,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new NullHandling_LiteralNullTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     null,
                     true
                 ),
                 new NullHandling_LiteralNullTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("UnitsInStock", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("UnitsInStock", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     null,
                     false
@@ -934,7 +931,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(NullHandling_LiteralNull_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(NullHandling_LiteralNull_Data), MemberType = typeof(FilterParameterTests))]
         public void NullHandling_LiteralNull(NullHandling_LiteralNullTheoryData theoryData)
         {
             //act
@@ -952,9 +949,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         }
         #endregion NULL handling
 
-        public class ComparisonsInvolvingCastsAndNullableValuesTheoryData(DescriptorBase filterBody)
+        public class ComparisonsInvolvingCastsAndNullableValuesTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<ComparisonsInvolvingCastsAndNullableValuesTheoryData> ComparisonsInvolvingCastsAndNullableValues_Data
@@ -962,105 +959,105 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
 
                         (
-                            new MemberSelectorDescriptor("UIntProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("UIntProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 ),
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ULongProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("ULongProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 ),
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UShortProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("UShortProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 ),
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableUShortProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("NullableUShortProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 ),
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableUIntProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("NullableUIntProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 ),
                 new ComparisonsInvolvingCastsAndNullableValuesTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new ConstantDescriptor("hello"),
-                            new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName))
+                            new ConstantOperatorParameters("hello"),
+                            new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableULongProp", new ParameterDescriptor(parameterName)),
-                            typeof(int?).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("NullableULongProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(int?)
                         )
                     )
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(ComparisonsInvolvingCastsAndNullableValues_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(ComparisonsInvolvingCastsAndNullableValues_Data), MemberType = typeof(FilterParameterTests))]
         public void ComparisonsInvolvingCastsAndNullableValues(ComparisonsInvolvingCastsAndNullableValuesTheoryData theoryData)
         {
             //act
@@ -1090,20 +1087,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (($it.ProductName != \"Doritos\") OrElse ($it.UnitPrice < Convert({0:0.00})))", 5.0));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new NotEqualsBinaryDescriptor
+                        new NotEqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor("Doritos")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters("Doritos")
                         ),
-                        new LessThanBinaryDescriptor
+                        new LessThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(5.00m, typeof(decimal).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(5.00m, typeof(decimal))
                         )
                     )
                 );
@@ -1121,17 +1118,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.Category.CategoryName == \"Snacks\")");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryName",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("Snacks")
+                        new ConstantOperatorParameters("Snacks")
                     )
                 );
         }
@@ -1146,26 +1143,26 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
             AssertFilterStringIsCorrect(filter, "$it => ($it.Category.Product.Category.CategoryName == \"Snacks\")");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryName",
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "Category",
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
 
                                 (
                                     "Product",
-                                    new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                    new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                                 )
                             )
                         ),
-                        new ConstantDescriptor("Snacks")
+                        new ConstantOperatorParameters("Snacks")
                     )
                 );
         }
@@ -1182,17 +1179,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.SupplierAddress.City == \"Redmond\")");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "City",
-                            new MemberSelectorDescriptor("SupplierAddress", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("SupplierAddress", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("Redmond")
+                        new ConstantOperatorParameters("Redmond")
                     )
                 );
         }
@@ -1240,20 +1237,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.True(result1);
             Assert.False(result2);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
@@ -1302,29 +1299,29 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.True(result1);
             Assert.False(result2);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
                 );
         }
 
-        public class AnyInOnNavigationTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class AnyInOnNavigationTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -1333,20 +1330,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductID", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("ProductID", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [1],
-                                typeof(int).AssemblyQualifiedName!
+                                typeof(int)
                             )
                         ),
                         "P"
@@ -1355,20 +1352,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductID", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("ProductID", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [1],
-                                typeof(int).AssemblyQualifiedName!
+                                typeof(int)
                             )
                         ),
                         "P"
@@ -1377,20 +1374,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("GuidProperty", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("GuidProperty", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid).AssemblyQualifiedName!
+                                typeof(Guid)
                             )
                         ),
                         "P"
@@ -1399,20 +1396,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("GuidProperty", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("GuidProperty", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid).AssemblyQualifiedName!
+                                typeof(Guid)
                             )
                         ),
                         "P"
@@ -1421,20 +1418,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableGuidProperty", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("NullableGuidProperty", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid?).AssemblyQualifiedName!
+                                typeof(Guid?)
                             )
                         ),
                         "P"
@@ -1443,20 +1440,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableGuidProperty", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("NullableGuidProperty", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid?).AssemblyQualifiedName!
+                                typeof(Guid?)
                             )
                         ),
                         "P"
@@ -1465,20 +1462,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [false, null!],
-                                typeof(bool?).AssemblyQualifiedName!
+                                typeof(bool?)
                             )
                         ),
                         "P"
@@ -1487,20 +1484,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyInOnNavigationTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Discontinued", new ParameterDescriptor("P")),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("Discontinued", new ParameterOperatorParameters("P")),
+                            new CollectionConstantOperatorParameters
                             (
                                 [false, null!],
-                                typeof(bool?).AssemblyQualifiedName!
+                                typeof(bool?)
                             )
                         ),
                         "P"
@@ -1510,7 +1507,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(AnyInOnNavigation_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(AnyInOnNavigation_Data), MemberType = typeof(FilterParameterTests))]
         public void AnyInOnNavigation(AnyInOnNavigationTheoryData theoryData)
         {
             //act
@@ -1526,9 +1523,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class AnyOnNavigation_ContradictionTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class AnyOnNavigation_ContradictionTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -1537,34 +1534,34 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new AnyOnNavigation_ContradictionTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(false),
+                        new ConstantOperatorParameters(false),
                         "P"
                     ),
                     "$it => $it.Category.QueryableProducts.Any(P => False)"
                 ),
                 new AnyOnNavigation_ContradictionTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new AndBinaryDescriptor
+                        new AndBinaryOperatorParameters
                         (
-                            new ConstantDescriptor(false),
-                            new EqualsBinaryDescriptor
+                            new ConstantOperatorParameters(false),
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                                new ConstantOperatorParameters("Snacks")
                             )
                         ),
                         "P"
@@ -1573,12 +1570,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ),
                 new AnyOnNavigation_ContradictionTheoryData
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => $it.Category.QueryableProducts.Any()"
@@ -1586,7 +1583,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(AnyOnNavigation_Contradiction_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(AnyOnNavigation_Contradiction_Data), MemberType = typeof(FilterParameterTests))]
         public void AnyOnNavigation_Contradiction(AnyOnNavigation_ContradictionTheoryData theoryData)
         {
             //act
@@ -1627,20 +1624,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.EnumerableProducts.Any(P => (P.ProductName == \"Snacks\"))");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
@@ -1673,20 +1670,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.EnumerableProducts.All(P => (P.ProductName == \"Snacks\"))");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
@@ -1702,28 +1699,28 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.AlternateIDs.Any(n => (n == 42)) AndAlso $it.AlternateAddresses.Any(n => (n.City == \"Redmond\")))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new AnyDescriptor
+                        new AnyOperatorParameters
                         (
-                            new MemberSelectorDescriptor("AlternateIDs", new ParameterDescriptor(parameterName)),
-                            new EqualsBinaryDescriptor
+                            new MemberSelectorOperatorParameters("AlternateIDs", new ParameterOperatorParameters(parameterName)),
+                            new EqualsBinaryOperatorParameters
                             (
-                                new ParameterDescriptor("n"),
-                                new ConstantDescriptor(42)
+                                new ParameterOperatorParameters("n"),
+                                new ConstantOperatorParameters(42)
                             ),
                             "n"
                         ),
-                        new AnyDescriptor
+                        new AnyOperatorParameters
                         (
-                            new MemberSelectorDescriptor("AlternateAddresses", new ParameterDescriptor(parameterName)),
-                            new EqualsBinaryDescriptor
+                            new MemberSelectorOperatorParameters("AlternateAddresses", new ParameterOperatorParameters(parameterName)),
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("City", new ParameterDescriptor("n")),
-                                new ConstantDescriptor("Redmond")
+                                new MemberSelectorOperatorParameters("City", new ParameterOperatorParameters("n")),
+                                new ConstantOperatorParameters("Redmond")
                             ),
                             "n"
                         )
@@ -1739,28 +1736,28 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
 
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.AlternateIDs.All(n => (n == 42)) AndAlso $it.AlternateAddresses.All(n => (n.City == \"Redmond\")))");
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new AllDescriptor
+                        new AllOperatorParameters
                         (
-                            new MemberSelectorDescriptor("AlternateIDs", new ParameterDescriptor(parameterName)),
-                            new EqualsBinaryDescriptor
+                            new MemberSelectorOperatorParameters("AlternateIDs", new ParameterOperatorParameters(parameterName)),
+                            new EqualsBinaryOperatorParameters
                             (
-                                new ParameterDescriptor("n"),
-                                new ConstantDescriptor(42)
+                                new ParameterOperatorParameters("n"),
+                                new ConstantOperatorParameters(42)
                             ),
                             "n"
                         ),
-                        new AllDescriptor
+                        new AllOperatorParameters
                         (
-                            new MemberSelectorDescriptor("AlternateAddresses", new ParameterDescriptor(parameterName)),
-                            new EqualsBinaryDescriptor
+                            new MemberSelectorOperatorParameters("AlternateAddresses", new ParameterOperatorParameters(parameterName)),
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("City", new ParameterDescriptor("n")),
-                                new ConstantDescriptor("Redmond")
+                                new MemberSelectorOperatorParameters("City", new ParameterOperatorParameters("n")),
+                                new ConstantOperatorParameters("Redmond")
                             ),
                             "n"
                         )
@@ -1777,15 +1774,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.EnumerableProducts.Any()");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 );
@@ -1800,15 +1797,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.QueryableProducts.Any()");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 );
@@ -1823,20 +1820,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.EnumerableProducts.All(P => (P.ProductName == \"Snacks\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "EnumerableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
@@ -1852,20 +1849,20 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.QueryableProducts.All(P => (P.ProductName == \"Snacks\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                            new ConstantDescriptor("Snacks")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                            new ConstantOperatorParameters("Snacks")
                         ),
                         "P"
                     )
@@ -1881,36 +1878,36 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.Category.QueryableProducts.Any(P => (P.ProductName == \"Snacks\")) OrElse $it.Category.QueryableProducts.Any(P2 => (P2.ProductName == \"Snacks\")))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new AnyDescriptor
+                        new AnyOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "QueryableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                                new ConstantOperatorParameters("Snacks")
                             ),
                             "P"
                         ),
-                        new AnyDescriptor
+                        new AnyOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "QueryableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P2")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P2")),
+                                new ConstantOperatorParameters("Snacks")
                             ),
                             "P2"
                         )
@@ -1927,36 +1924,36 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.Category.QueryableProducts.All(P => (P.ProductName == \"Snacks\")) OrElse $it.Category.QueryableProducts.All(P2 => (P2.ProductName == \"Snacks\")))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new AllDescriptor
+                        new AllOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "QueryableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P")),
+                                new ConstantOperatorParameters("Snacks")
                             ),
                             "P"
                         ),
-                        new AllDescriptor
+                        new AllOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "QueryableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("P2")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("P2")),
+                                new ConstantOperatorParameters("Snacks")
                             ),
                             "P2"
                         )
@@ -1987,16 +1984,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.True(result1);
             Assert.False(result2);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor("AlternateIDs", new ParameterDescriptor(parameterName)),
-                        new EqualsBinaryDescriptor
+                        new MemberSelectorOperatorParameters("AlternateIDs", new ParameterOperatorParameters(parameterName)),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new ParameterDescriptor("id"),
-                            new ConstantDescriptor(42)
+                            new ParameterOperatorParameters("id"),
+                            new ConstantOperatorParameters(42)
                         ),
                         "id"
                     )
@@ -2012,16 +2009,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.AlternateIDs.All(id => (id == 42))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor("AlternateIDs", new ParameterDescriptor(parameterName)),
-                        new EqualsBinaryDescriptor
+                        new MemberSelectorOperatorParameters("AlternateIDs", new ParameterOperatorParameters(parameterName)),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new ParameterDescriptor("id"),
-                            new ConstantDescriptor(42)
+                            new ParameterOperatorParameters("id"),
+                            new ConstantOperatorParameters(42)
                         ),
                         "id"
                     )
@@ -2045,16 +2042,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.AlternateAddresses.Any(address => (address.City == \"Redmond\"))");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new MemberSelectorDescriptor("AlternateAddresses", new ParameterDescriptor(parameterName)),
-                        new EqualsBinaryDescriptor
+                        new MemberSelectorOperatorParameters("AlternateAddresses", new ParameterOperatorParameters(parameterName)),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("City", new ParameterDescriptor("address")),
-                            new ConstantDescriptor("Redmond")
+                            new MemberSelectorOperatorParameters("City", new ParameterOperatorParameters("address")),
+                            new ConstantOperatorParameters("Redmond")
                         ),
                         "address"
                     )
@@ -2070,16 +2067,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.AlternateAddresses.All(address => (address.City == \"Redmond\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor("AlternateAddresses", new ParameterDescriptor(parameterName)),
-                        new EqualsBinaryDescriptor
+                        new MemberSelectorOperatorParameters("AlternateAddresses", new ParameterOperatorParameters(parameterName)),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("City", new ParameterDescriptor("address")),
-                            new ConstantDescriptor("Redmond")
+                            new MemberSelectorOperatorParameters("City", new ParameterOperatorParameters("address")),
+                            new ConstantOperatorParameters("Redmond")
                         ),
                         "address"
                     )
@@ -2095,27 +2092,27 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.QueryableProducts.All(P => P.Category.EnumerableProducts.Any(PP => (PP.ProductName == \"Snacks\")))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "QueryableProducts",
-                            new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                         ),
-                        new AnyDescriptor
+                        new AnyOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "EnumerableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor("P"))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters("P"))
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("PP")),
-                                new ConstantDescriptor("Snacks")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("PP")),
+                                new ConstantOperatorParameters("Snacks")
                             ),
                             "PP"
                         ),
@@ -2147,14 +2144,14 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(startIndex)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(startIndex)
                         ),
-                        new ConstantDescriptor(compareString)
+                        new ConstantOperatorParameters(compareString)
                     )
                 );
         }
@@ -2173,14 +2170,14 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(startIndex)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(startIndex)
                         ),
-                        new ConstantDescriptor(compareString)
+                        new ConstantOperatorParameters(compareString)
                     )
                 );
         }
@@ -2208,15 +2205,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(startIndex),
-                            new ConstantDescriptor(length)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(startIndex),
+                            new ConstantOperatorParameters(length)
                         ),
-                        new ConstantDescriptor(compareString)
+                        new ConstantOperatorParameters(compareString)
                     )
                 );
         }
@@ -2240,15 +2237,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(startIndex),
-                            new ConstantDescriptor(length)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(startIndex),
+                            new ConstantOperatorParameters(length)
                         ),
-                        new ConstantDescriptor(compareString)
+                        new ConstantOperatorParameters(compareString)
                     )
                 );
         }
@@ -2266,13 +2263,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.Contains(\"Abc\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new ContainsDescriptor
+                    new ContainsOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2287,13 +2284,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.Contains(\"Abc\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new ContainsDescriptor
+                    new ContainsOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2311,13 +2308,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.StartsWith(\"Abc\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new StartsWithDescriptor
+                    new StartsWithOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2332,13 +2329,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.StartsWith(\"Abc\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new StartsWithDescriptor
+                    new StartsWithOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2356,13 +2353,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.EndsWith(\"Abc\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EndsWithDescriptor
+                    new EndsWithOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2377,13 +2374,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => $it.ProductName.EndsWith(\"Abc\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EndsWithDescriptor
+                    new EndsWithOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("Abc")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("Abc")
                     )
                 );
         }
@@ -2401,16 +2398,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.Length > 0)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new LengthDescriptor
+                        new LengthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0)
+                        new ConstantOperatorParameters(0)
                     )
                 );
         }
@@ -2425,16 +2422,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.Length > 0)");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new LengthDescriptor
+                        new LengthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0)
+                        new ConstantOperatorParameters(0)
                     )
                 );
         }
@@ -2452,17 +2449,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.IndexOf(\"Abc\") == 5)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor("Abc")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters("Abc")
                         ),
-                        new ConstantDescriptor(5)
+                        new ConstantOperatorParameters(5)
                     )
                 );
         }
@@ -2477,17 +2474,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.IndexOf(\"Abc\") == 5)");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new IndexOfDescriptor
+                        new IndexOfOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor("Abc")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters("Abc")
                         ),
-                        new ConstantDescriptor(5)
+                        new ConstantOperatorParameters(5)
                     )
                 );
         }
@@ -2510,29 +2507,29 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter1<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(3)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(3)
                         ),
-                        new ConstantDescriptor("uctName")
+                        new ConstantOperatorParameters("uctName")
                     )
                 );
 
             Expression<Func<T, bool>> CreateFilter2<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(3),
-                            new ConstantDescriptor(4)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(3),
+                            new ConstantOperatorParameters(4)
                         ),
-                        new ConstantDescriptor("uctN")
+                        new ConstantOperatorParameters("uctN")
                     )
                 );
         }
@@ -2552,29 +2549,29 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter1<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(3)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(3)
                         ),
-                        new ConstantDescriptor("uctName")
+                        new ConstantOperatorParameters("uctName")
                     )
                 );
 
             Expression<Func<T, bool>> CreateFilter2<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SubstringDescriptor
+                        new SubstringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(3),
-                            new ConstantDescriptor(4)
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(3),
+                            new ConstantOperatorParameters(4)
                         ),
-                        new ConstantDescriptor("uctN")
+                        new ConstantOperatorParameters("uctN")
                     )
                 );
         }
@@ -2592,16 +2589,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.ToLower() == \"tasty treats\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ToLowerDescriptor
+                        new ToLowerOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("tasty treats")
+                        new ConstantOperatorParameters("tasty treats")
                     )
                 );
         }
@@ -2616,16 +2613,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.ToLower() == \"tasty treats\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ToLowerDescriptor
+                        new ToLowerOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("tasty treats")
+                        new ConstantOperatorParameters("tasty treats")
                     )
                 );
         }
@@ -2643,16 +2640,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.ToUpper() == \"TASTY TREATS\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ToUpperDescriptor
+                        new ToUpperOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("TASTY TREATS")
+                        new ConstantOperatorParameters("TASTY TREATS")
                     )
                 );
         }
@@ -2667,16 +2664,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.ToUpper() == \"TASTY TREATS\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ToUpperDescriptor
+                        new ToUpperOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("TASTY TREATS")
+                        new ConstantOperatorParameters("TASTY TREATS")
                     )
                 );
         }
@@ -2694,16 +2691,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.Trim() == \"Tasty Treats\")");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new TrimDescriptor
+                        new TrimOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("Tasty Treats")
+                        new ConstantOperatorParameters("Tasty Treats")
                     )
                 );
         }
@@ -2718,16 +2715,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName.Trim() == \"Tasty Treats\")");
             Assert.Throws<NullReferenceException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new TrimDescriptor
+                        new TrimOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("Tasty Treats")
+                        new ConstantOperatorParameters("Tasty Treats")
                     )
                 );
         }
@@ -2743,17 +2740,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => (\"Food\".Concat(\"Bar\") == \"FoodBar\")");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConcatDescriptor
+                        new ConcatOperatorParameters
                         (
-                            new ConstantDescriptor("Food"),
-                            new ConstantDescriptor("Bar")
+                            new ConstantOperatorParameters("Food"),
+                            new ConstantOperatorParameters("Bar")
                         ),
-                        new ConstantDescriptor("FoodBar")
+                        new ConstantOperatorParameters("FoodBar")
                     )
                 );
         }
@@ -2772,16 +2769,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(8)
+                        new ConstantOperatorParameters(8)
                     )
                 );
         }
@@ -2795,16 +2792,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.NonNullableDiscontinuedDate.Day == 8)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(8)
+                        new ConstantOperatorParameters(8)
                     )
                 );
         }
@@ -2818,16 +2815,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.DiscontinuedDate.Value.Month == 8)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(8)
+                        new ConstantOperatorParameters(8)
                     )
                 );
         }
@@ -2841,16 +2838,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.DiscontinuedDate.Value.Year == 1974)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(1974)
+                        new ConstantOperatorParameters(1974)
                     )
                 );
         }
@@ -2864,16 +2861,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.DiscontinuedDate.Value.Hour == 8)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(8)
+                        new ConstantOperatorParameters(8)
                     )
                 );
         }
@@ -2887,16 +2884,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.DiscontinuedDate.Value.Minute == 12)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     )
                 );
         }
@@ -2910,23 +2907,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.DiscontinuedDate.Value.Second == 33)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(33)
+                        new ConstantOperatorParameters(33)
                     )
                 );
         }
 
-        public class DateTimeOffsetFunctionsTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateTimeOffsetFunctionsTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -2935,89 +2932,89 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Year == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Month == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Day == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Hour == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Minute == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedOffset", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedOffset", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ($it.DiscontinuedOffset.Second == 100)"
                 ),
                 new DateTimeOffsetFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new NowDateTimeDescriptor(),
-                        new ConstantDescriptor(new DateTimeOffset(new DateTime(2016, 11, 8, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0)))
+                        new NowDateTimeOperatorParameters(),
+                        new ConstantOperatorParameters(new DateTimeOffset(new DateTime(2016, 11, 8, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0)))
                     ),
                     "$it => (DateTimeOffset.UtcNow == 11/08/2016 00:00:00 +00:00)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateTimeOffsetFunctions_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateTimeOffsetFunctions_Data), MemberType = typeof(FilterParameterTests))]
         public void DateTimeOffsetFunctions(DateTimeOffsetFunctionsTheoryData theoryData)
         {
             //act
@@ -3033,9 +3030,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateTimeFunctionsTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateTimeFunctionsTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3044,80 +3041,80 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Year == 100)"
                 ),
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Month == 100)"
                 ),
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Day == 100)"
                 ),
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Hour == 100)"
                 ),
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Minute == 100)"
                 ),
                 new DateTimeFunctionsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Birthday", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Birthday", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(100)
+                        new ConstantOperatorParameters(100)
                     ),
                     "$it => ({0}.Second == 100)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateTimeFunctions_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateTimeFunctions_Data), MemberType = typeof(FilterParameterTests))]
         public void DateTimeFunctions(DateTimeFunctionsTheoryData theoryData)
         {
             //act
@@ -3133,9 +3130,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateFunctions_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateFunctions_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3144,44 +3141,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(2015)
+                        new ConstantOperatorParameters(2015)
                     ),
                     "$it => ($it.NullableDateProperty.Value.Year == 2015)"
                 ),
                 new DateFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => ($it.NullableDateProperty.Value.Month == 12)"
                 ),
                 new DateFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(23)
+                        new ConstantOperatorParameters(23)
                     ),
                     "$it => ($it.NullableDateProperty.Value.Day == 23)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateFunctions_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateFunctions_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateFunctions_Nullable(DateFunctions_NullableTheoryData theoryData)
         {
             //act
@@ -3197,9 +3194,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateOnlyFunctions_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateOnlyFunctions_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3208,44 +3205,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(2015)
+                        new ConstantOperatorParameters(2015)
                     ),
                     "$it => ($it.NullableDateOnlyProperty.Value.Year == 2015)"
                 ),
                 new DateOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => ($it.NullableDateOnlyProperty.Value.Month == 12)"
                 ),
                 new DateOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(23)
+                        new ConstantOperatorParameters(23)
                     ),
                     "$it => ($it.NullableDateOnlyProperty.Value.Day == 23)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateOnlyFunctions_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateOnlyFunctions_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateOnlyFunctions_Nullable(DateOnlyFunctions_NullableTheoryData theoryData)
         {
             //act
@@ -3261,9 +3258,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateFunctions_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateFunctions_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3272,44 +3269,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(2015)
+                        new ConstantOperatorParameters(2015)
                     ),
                     "$it => ($it.DateProperty.Year == 2015)"
                 ),
                 new DateFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => ($it.DateProperty.Month == 12)"
                 ),
                 new DateFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(23)
+                        new ConstantOperatorParameters(23)
                     ),
                     "$it => ($it.DateProperty.Day == 23)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateFunctions_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateFunctions_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateFunctions_NonNullable(DateFunctions_NonNullableTheoryData theoryData)
         {
             //act
@@ -3325,9 +3322,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateOnlyFunctions_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateOnlyFunctions_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3336,44 +3333,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new YearDescriptor
+                        new YearOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(2015)
+                        new ConstantOperatorParameters(2015)
                     ),
                     "$it => ($it.DateOnlyProperty.Year == 2015)"
                 ),
                 new DateOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MonthDescriptor
+                        new MonthOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => ($it.DateOnlyProperty.Month == 12)"
                 ),
                 new DateOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new DayDescriptor
+                        new DayOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(23)
+                        new ConstantOperatorParameters(23)
                     ),
                     "$it => ($it.DateOnlyProperty.Day == 23)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateOnlyFunctions_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateOnlyFunctions_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateOnlyFunctions_NonNullable(DateOnlyFunctions_NonNullableTheoryData theoryData)
         {
             //act
@@ -3389,9 +3386,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOfDayFunctions_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOfDayFunctions_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3400,44 +3397,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOfDayFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(10)
+                        new ConstantOperatorParameters(10)
                     ),
                     "$it => ($it.NullableTimeOfDayProperty.Value.Hours == 10)"
                 ),
                 new TimeOfDayFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(20)
+                        new ConstantOperatorParameters(20)
                     ),
                     "$it => ($it.NullableTimeOfDayProperty.Value.Minutes == 20)"
                 ),
                 new TimeOfDayFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(30)
+                        new ConstantOperatorParameters(30)
                     ),
                     "$it => ($it.NullableTimeOfDayProperty.Value.Seconds == 30)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOfDayFunctions_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOfDayFunctions_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOfDayFunctions_Nullable(TimeOfDayFunctions_NullableTheoryData theoryData)
         {
             //act
@@ -3453,9 +3450,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOnlyFunctions_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOnlyFunctions_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3464,44 +3461,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(10)
+                        new ConstantOperatorParameters(10)
                     ),
                     "$it => ($it.NullableTimeOnlyProperty.Value.Hour == 10)"
                 ),
                 new TimeOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(20)
+                        new ConstantOperatorParameters(20)
                     ),
                     "$it => ($it.NullableTimeOnlyProperty.Value.Minute == 20)"
                 ),
                 new TimeOnlyFunctions_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(30)
+                        new ConstantOperatorParameters(30)
                     ),
                     "$it => ($it.NullableTimeOnlyProperty.Value.Second == 30)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOnlyFunctions_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOnlyFunctions_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOnlyFunctions_Nullable(TimeOnlyFunctions_NullableTheoryData theoryData)
         {
             //act
@@ -3517,9 +3514,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOfDayFunctions_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOfDayFunctions_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3528,44 +3525,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOfDayFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(10)
+                        new ConstantOperatorParameters(10)
                     ),
                     "$it => ($it.TimeOfDayProperty.Hours == 10)"
                 ),
                 new TimeOfDayFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(20)
+                        new ConstantOperatorParameters(20)
                     ),
                     "$it => ($it.TimeOfDayProperty.Minutes == 20)"
                 ),
                 new TimeOfDayFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(30)
+                        new ConstantOperatorParameters(30)
                     ),
                     "$it => ($it.TimeOfDayProperty.Seconds == 30)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOfDayFunctions_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOfDayFunctions_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOfDayFunctions_NonNullable(TimeOfDayFunctions_NonNullableTheoryData theoryData)
         {
             //act
@@ -3581,9 +3578,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOnlyFunctions_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOnlyFunctions_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3592,44 +3589,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new HourDescriptor
+                        new HourOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(10)
+                        new ConstantOperatorParameters(10)
                     ),
                     "$it => ($it.TimeOnlyProperty.Hour == 10)"
                 ),
                 new TimeOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MinuteDescriptor
+                        new MinuteOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(20)
+                        new ConstantOperatorParameters(20)
                     ),
                     "$it => ($it.TimeOnlyProperty.Minute == 20)"
                 ),
                 new TimeOnlyFunctions_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new SecondDescriptor
+                        new SecondOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(30)
+                        new ConstantOperatorParameters(30)
                     ),
                     "$it => ($it.TimeOnlyProperty.Second == 30)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOnlyFunctions_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOnlyFunctions_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOnlyFunctions_NonNullable(TimeOnlyFunctions_NonNullableTheoryData theoryData)
         {
             //act
@@ -3645,9 +3642,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class FractionalsecondsFunction_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class FractionalsecondsFunction_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3656,44 +3653,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new FractionalsecondsFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.DiscontinuedDate.Value.Millisecond) / 1000) == 0.2)"
                 ),
                 new FractionalsecondsFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.NullableTimeOfDayProperty.Value.Milliseconds) / 1000) == 0.2)"
                 ),
                 new FractionalsecondsFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.NullableTimeOnlyProperty.Value.Millisecond) / 1000) == 0.2)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(FractionalsecondsFunction_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(FractionalsecondsFunction_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void FractionalsecondsFunction_Nullable(FractionalsecondsFunction_NullableTheoryData theoryData)
         {
             //act
@@ -3709,9 +3706,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class FractionalsecondsFunction_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class FractionalsecondsFunction_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3720,44 +3717,44 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new FractionalsecondsFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.NonNullableDiscontinuedDate.Millisecond) / 1000) == 0.2)"
                 ),
                 new FractionalsecondsFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOfDayProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOfDayProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.TimeOfDayProperty.Milliseconds) / 1000) == 0.2)"
                 ),
                 new FractionalsecondsFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FractionalSecondsDescriptor
+                        new FractionalSecondsOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeOnlyProperty", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeOnlyProperty", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(0.2m)
+                        new ConstantOperatorParameters(0.2m)
                     ),
                     "$it => ((Convert($it.TimeOnlyProperty.Millisecond) / 1000) == 0.2)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(FractionalsecondsFunction_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(FractionalsecondsFunction_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void FractionalsecondsFunction_NonNullable(FractionalsecondsFunction_NonNullableTheoryData theoryData)
         {
             //act
@@ -3773,9 +3770,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateFunction_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateFunction_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3784,71 +3781,71 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2015, 2, 26))
+                            new ConstantOperatorParameters(new Date(2015, 2, 26))
                         )
                     ),
                     "$it => (((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day) == (((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day))"
                 ),
                 new DateFunction_NullableTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2016, 2, 26))
+                            new ConstantOperatorParameters(new Date(2016, 2, 26))
                         )
                     ),
                     "$it => (((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day) < (((2016-02-26.Year * 10000) + (2016-02-26.Month * 100)) + 2016-02-26.Day))"
                 ),
                 new DateFunction_NullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2015, 2, 26))
+                            new ConstantOperatorParameters(new Date(2015, 2, 26))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => ((((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day) >= ((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day))"
                 ),
                 new DateFunction_NullableTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null != $it.DiscontinuedDate)"
                 ),
                 new DateFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.DiscontinuedDate == null)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateFunction_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateFunction_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateFunction_Nullable(DateFunction_NullableTheoryData theoryData)
         {
             //act
@@ -3864,9 +3861,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateOnlyFunction_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateOnlyFunction_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3875,71 +3872,71 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateOnlyFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2015, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2015, 2, 26))
                         )
                     ),
                     "$it => (((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day) == (((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day))"
                 ),
                 new DateOnlyFunction_NullableTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2016, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2016, 2, 26))
                         )
                     ),
                     "$it => (((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day) < (((2016-02-26.Year * 10000) + (2016-02-26.Month * 100)) + 2016-02-26.Day))"
                 ),
                 new DateOnlyFunction_NullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2015, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2015, 2, 26))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => ((((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day) >= ((($it.DiscontinuedDate.Value.Year * 10000) + ($it.DiscontinuedDate.Value.Month * 100)) + $it.DiscontinuedDate.Value.Day))"
                 ),
                 new DateOnlyFunction_NullableTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null != $it.DiscontinuedDate)"
                 ),
                 new DateOnlyFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.DiscontinuedDate == null)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DateOnlyFunction_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateOnlyFunction_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateOnlyFunction_Nullable(DateOnlyFunction_NullableTheoryData theoryData)
         {
             //act
@@ -3955,9 +3952,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateFunction_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateFunction_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -3966,45 +3963,45 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2015, 2, 26))
+                            new ConstantOperatorParameters(new Date(2015, 2, 26))
                         )
                     ),
                     "$it => (((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day) == (((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day))"
                 ),
                 new DateFunction_NonNullableTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2016, 2, 26))
+                            new ConstantOperatorParameters(new Date(2016, 2, 26))
                         )
                     ),
                     "$it => (((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day) < (((2016-02-26.Year * 10000) + (2016-02-26.Month * 100)) + 2016-02-26.Day))"
                 ),
                 new DateFunction_NonNullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new Date(2015, 2, 26))
+                            new ConstantOperatorParameters(new Date(2015, 2, 26))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => ((((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day) >= ((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day))"
@@ -4012,7 +4009,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(DateFunction_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateFunction_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateFunction_NonNullable(DateFunction_NonNullableTheoryData theoryData)
         {
             //act
@@ -4028,9 +4025,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DateOnlyFunction_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateOnlyFunction_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -4039,45 +4036,45 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateOnlyFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2015, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2015, 2, 26))
                         )
                     ),
                     "$it => (((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day) == (((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day))"
                 ),
                 new DateOnlyFunction_NonNullableTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2016, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2016, 2, 26))
                         )
                     ),
                     "$it => (((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day) < (((2016-02-26.Year * 10000) + (2016-02-26.Month * 100)) + 2016-02-26.Day))"
                 ),
                 new DateOnlyFunction_NonNullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new ConstantDescriptor(new DateOnly(2015, 2, 26))
+                            new ConstantOperatorParameters(new DateOnly(2015, 2, 26))
                         ),
-                        new ConvertToNumericDateDescriptor
+                        new ConvertToNumericDateOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => ((((2015-02-26.Year * 10000) + (2015-02-26.Month * 100)) + 2015-02-26.Day) >= ((($it.NonNullableDiscontinuedDate.Year * 10000) + ($it.NonNullableDiscontinuedDate.Month * 100)) + $it.NonNullableDiscontinuedDate.Day))"
@@ -4085,7 +4082,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(DateOnlyFunction_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateOnlyFunction_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void DateOnlyFunction_NonNullable(DateOnlyFunction_NonNullableTheoryData theoryData)
         {
             //act
@@ -4101,9 +4098,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeFunction_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeFunction_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -4112,71 +4109,71 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))) == ((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))))"
                 ),
                 new TimeFunction_NullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))) >= ((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))))"
                 ),
                 new TimeFunction_NullableTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => (((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))) <= ((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))))"
                 ),
                 new TimeFunction_NullableTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null != $it.DiscontinuedDate)"
                 ),
                 new TimeFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.DiscontinuedDate == null)"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(TimeFunction_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeFunction_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeFunction_Nullable(TimeFunction_NullableTheoryData theoryData)
         {
             //act
@@ -4192,9 +4189,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOnlyFunction_NullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOnlyFunction_NullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -4203,71 +4200,71 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOnlyFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))) == ((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))))"
                 ),
                 new TimeOnlyFunction_NullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))) >= ((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))))"
                 ),
                 new TimeOnlyFunction_NullableTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => (((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))) <= ((Convert($it.DiscontinuedDate.Value.Hour) * 36000000000) + ((Convert($it.DiscontinuedDate.Value.Minute) * 600000000) + ((Convert($it.DiscontinuedDate.Value.Second) * 10000000) + Convert($it.DiscontinuedDate.Value.Millisecond)))))"
                 ),
                 new TimeOnlyFunction_NullableTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null != $it.DiscontinuedDate)"
                 ),
                 new TimeOnlyFunction_NullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DiscontinuedDate", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("DiscontinuedDate", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.DiscontinuedDate == null)"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOnlyFunction_Nullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOnlyFunction_Nullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOnlyFunction_Nullable(TimeOnlyFunction_NullableTheoryData theoryData)
         {
             //act
@@ -4283,9 +4280,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeFunction_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeFunction_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -4294,45 +4291,45 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))) == ((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))))"
                 ),
                 new TimeFunction_NonNullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))) >= ((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))))"
                 ),
                 new TimeFunction_NonNullableTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOfDay(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOfDay(1, 2, 3, 4))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => (((Convert(01:02:03.0040000.Hours) * 36000000000) + ((Convert(01:02:03.0040000.Minutes) * 600000000) + ((Convert(01:02:03.0040000.Seconds) * 10000000) + Convert(01:02:03.0040000.Milliseconds)))) <= ((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))))"
@@ -4340,7 +4337,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(TimeFunction_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeFunction_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeFunction_NonNullable(TimeFunction_NonNullableTheoryData theoryData)
         {
             //act
@@ -4356,9 +4353,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class TimeOnlyFunction_NonNullableTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class TimeOnlyFunction_NonNullableTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -4367,45 +4364,45 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new TimeOnlyFunction_NonNullableTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))) == ((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))))"
                 ),
                 new TimeOnlyFunction_NonNullableTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         )
                     ),
                     "$it => (((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))) >= ((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))))"
                 ),
                 new TimeOnlyFunction_NonNullableTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new ConstantDescriptor(new TimeOnly(1, 2, 3, 4))
+                            new ConstantOperatorParameters(new TimeOnly(1, 2, 3, 4))
                         ),
-                        new ConvertToNumericTimeDescriptor
+                        new ConvertToNumericTimeOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NonNullableDiscontinuedDate", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NonNullableDiscontinuedDate", new ParameterOperatorParameters(parameterName))
                         )
                     ),
                     "$it => (((Convert(01:02:03.0040000.Hour) * 36000000000) + ((Convert(01:02:03.0040000.Minute) * 600000000) + ((Convert(01:02:03.0040000.Second) * 10000000) + Convert(01:02:03.0040000.Millisecond)))) <= ((Convert($it.NonNullableDiscontinuedDate.Hour) * 36000000000) + ((Convert($it.NonNullableDiscontinuedDate.Minute) * 600000000) + ((Convert($it.NonNullableDiscontinuedDate.Second) * 10000000) + Convert($it.NonNullableDiscontinuedDate.Millisecond)))))"
@@ -4413,7 +4410,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(TimeOnlyFunction_NonNullable_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(TimeOnlyFunction_NonNullable_Data), MemberType = typeof(FilterParameterTests))]
         public void TimeOnlyFunction_NonNullable(TimeOnlyFunction_NonNullableTheoryData theoryData)
         {
             //act
@@ -4442,19 +4439,19 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Floor().Floor() == 123)");
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new FloorDescriptor
+                            new FloorOperatorParameters
                             (
-                                new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                             )
                         ),
-                        new ConstantDescriptor(123m)
+                        new ConstantOperatorParameters(123m)
                     )
                 );
         }
@@ -4469,19 +4466,19 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Floor().Floor() == 123)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new FloorDescriptor
+                            new FloorOperatorParameters
                             (
-                                new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                             )
                         ),
-                        new ConstantDescriptor(123m)
+                        new ConstantOperatorParameters(123m)
                     )
                 );
         }
@@ -4496,16 +4493,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice.Value.Round() > {0:0.00})", 5.0));
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5.00m)
+                        new ConstantOperatorParameters(5.00m)
                     )
                 );
         }
@@ -4524,7 +4521,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ];
 
         [Theory]
-        [MemberData(nameof(MathRoundDecimal_DataSet), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(MathRoundDecimal_DataSet), MemberType = typeof(FilterParameterTests))]
         public void MathRoundDecimal(MathRoundDecimalTheoryData theoryData)
         {
             //act
@@ -4534,16 +4531,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.UnitPrice.Value.Round() > {0:0.00})", 5.0));
             Assert.Equal(theoryData.Expected, result);
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5.00m)
+                        new ConstantOperatorParameters(5.00m)
                     )
                 );
         }
@@ -4558,16 +4555,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.Weight.Value.Round() > {0})", 5));
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4585,16 +4582,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => ($it.Weight.Value.Round() > {0})", 5));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4609,16 +4606,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (Convert($it.Width).Value.Round() > {0})", 5));
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4636,16 +4633,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, string.Format(CultureInfo.InvariantCulture, "$it => (Convert($it.Width).Value.Round() > {0})", 5));
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4660,16 +4657,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Floor() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5m)
+                        new ConstantOperatorParameters(5m)
                     )
                 );
         }
@@ -4687,7 +4684,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                     new MathFloorDecimalTheoryData(4.4m, false)
                 ];
 
-        [Theory, MemberData(nameof(MathFloorDecimal_DataSet), MemberType = typeof(FilterDescriptorTests))]
+        [Theory, MemberData(nameof(MathFloorDecimal_DataSet), MemberType = typeof(FilterParameterTests))]
         public void MathFloorDecimal(MathFloorDecimalTheoryData theoryData)
         {
             //act
@@ -4697,16 +4694,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Floor() == 5)");
             Assert.Equal(theoryData.Expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5m)
+                        new ConstantOperatorParameters(5m)
                     )
                 );
         }
@@ -4721,16 +4718,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.Weight.Value.Floor() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4748,16 +4745,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.Weight.Value.Floor() == 5)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4772,16 +4769,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => (Convert($it.Width).Value.Floor() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4799,16 +4796,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => (Convert($it.Width).Value.Floor() == 5)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4823,16 +4820,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Ceiling() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5m)
+                        new ConstantOperatorParameters(5m)
                     )
                 );
         }
@@ -4850,7 +4847,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                     new MathCeilingDecimalTheoryData(5.9m, false)
                 ];
 
-        [Theory, MemberData(nameof(MathCeilingDecimal_DataSet), MemberType = typeof(FilterDescriptorTests))]
+        [Theory, MemberData(nameof(MathCeilingDecimal_DataSet), MemberType = typeof(FilterParameterTests))]
         public void MathCeilingDecimal(MathCeilingDecimalTheoryData theoryData)
         {
             //act
@@ -4860,16 +4857,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.UnitPrice.Value.Ceiling() == 5)");
             Assert.Equal(theoryData.Expected, result);
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("UnitPrice", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("UnitPrice", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5m)
+                        new ConstantOperatorParameters(5m)
                     )
                 );
         }
@@ -4884,16 +4881,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.Weight.Value.Ceiling() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4911,16 +4908,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => ($it.Weight.Value.Ceiling() == 5)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Weight", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("Weight", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4935,16 +4932,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => (Convert($it.Width).Value.Ceiling() == 5)");
             Assert.Throws<InvalidOperationException>(() => RunFilter(filter, new Product { }));
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
@@ -4962,23 +4959,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => (Convert($it.Width).Value.Ceiling() == 5)");
             Assert.Equal(expected, result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("Width", new ParameterDescriptor(parameterName)), typeof(double?).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("Width", new ParameterOperatorParameters(parameterName)), typeof(double?))
                         ),
-                        new ConstantDescriptor(5d)
+                        new ConstantOperatorParameters(5d)
                     )
                 );
         }
 
-        public class MathFunctions_VariousTypesTheoryData(DescriptorBase filterBody)
+        public class MathFunctions_VariousTypesTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<MathFunctions_VariousTypesTheoryData> MathFunctions_VariousTypes_Data
@@ -4986,134 +4983,134 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         ),
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         ),
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         ),
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new ConvertDescriptor(new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)), typeof(double).AssemblyQualifiedName!)
+                            new ConvertOperatorParameters(new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)), typeof(double))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new FloorDescriptor
+                        new FloorOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new RoundDescriptor
+                        new RoundOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
                 new MathFunctions_VariousTypesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new CeilingDescriptor
+                        new CeilingOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         )
                     )
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(MathFunctions_VariousTypes_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(MathFunctions_VariousTypes_Data), MemberType = typeof(FilterParameterTests))]
         public void MathFunctions_VariousTypes(MathFunctions_VariousTypesTheoryData theoryData)
         {
             //act
@@ -5147,23 +5144,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CustomMethodDescriptor
+                        new CustomMethodOperatorParameters
                         (
-                            typeof(string).AssemblyQualifiedName!,
+                            typeof(string),
                             "PadRight",
                             [typeof(int).AssemblyQualifiedName!],
-                            new DescriptorBase[]
+                            new IExpressionParameter[]
                             {
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                new ConstantDescriptor(totalWidth)
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                new ConstantOperatorParameters(totalWidth)
                             }
                         ),
-                        new ConstantDescriptor(expectedProductName)
+                        new ConstantOperatorParameters(expectedProductName)
                     )
                 );
         }
@@ -5183,23 +5180,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CustomMethodDescriptor
+                        new CustomMethodOperatorParameters
                         (
-                            typeof(StringExtender).AssemblyQualifiedName!,
+                            typeof(StringExtender),
                             "PadRightExStatic",
                             [typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName!],
-                            new DescriptorBase[]
+                            new IExpressionParameter[]
                             {
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                new ConstantDescriptor(totalWidth)
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                new ConstantOperatorParameters(totalWidth)
                             }
                         ),
-                        new ConstantDescriptor(expectedProductName)
+                        new ConstantOperatorParameters(expectedProductName)
                     )
                 );
         }
@@ -5219,23 +5216,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             Assert.True(result);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new CustomMethodDescriptor
+                        new CustomMethodOperatorParameters
                         (
-                            typeof(FilterDescriptorTests).AssemblyQualifiedName!,
+                            typeof(FilterParameterTests),
                             nameof(PadRightStatic),
                             [typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName!],
-                            new DescriptorBase[]
+                            new IExpressionParameter[]
                             {
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                new ConstantDescriptor(totalWidth)
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                new ConstantOperatorParameters(totalWidth)
                             }
                         ),
-                        new ConstantDescriptor(expectedProductName)
+                        new ConstantOperatorParameters(expectedProductName)
                     )
                 );
         }
@@ -5256,27 +5253,27 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter1<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("GuidProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(new Guid("0EFDAECF-A9F0-42F3-A384-1295917AF95E"))
+                        new MemberSelectorOperatorParameters("GuidProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(new Guid("0EFDAECF-A9F0-42F3-A384-1295917AF95E"))
                     )
                 );
 
             Expression<Func<T, bool>> CreateFilter2<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("GuidProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(new Guid("0efdaecf-a9f0-42f3-a384-1295917af95e"))
+                        new MemberSelectorOperatorParameters("GuidProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(new Guid("0efdaecf-a9f0-42f3-a384-1295917af95e"))
                     )
                 );
         }
 
-        public class DateTimeExpressionTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class DateTimeExpressionTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -5285,26 +5282,26 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DateTimeExpressionTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(new DateTimeOffset(new DateTime(2000, 12, 12, 12, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(new DateTimeOffset(new DateTime(2000, 12, 12, 12, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero))
                     ),
                     "$it => ($it.DateTimeProp == {0})"
                 ),
                 new DateTimeExpressionTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("DateTimeProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(new DateTimeOffset(new DateTime(2000, 12, 12, 12, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero))
+                        new MemberSelectorOperatorParameters("DateTimeProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(new DateTimeOffset(new DateTime(2000, 12, 12, 12, 0, 0, DateTimeKind.Unspecified), TimeSpan.Zero))
                     ),
                     "$it => ($it.DateTimeProp < {0})"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(DateTimeExpression_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DateTimeExpression_Data), MemberType = typeof(FilterParameterTests))]
         public void DateTimeExpression(DateTimeExpressionTheoryData theoryData)
         {
             //arrange
@@ -5337,17 +5334,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter1<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new LessThanBinaryDescriptor
+                        new LessThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor((long)987654321, typeof(long).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("LongProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters((long)987654321, typeof(long))
                         ),
-                        new GreaterThanBinaryDescriptor
+                        new GreaterThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor((long)123456789, typeof(long).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("LongProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters((long)123456789, typeof(long))
                         )
                     )
                 );
@@ -5355,17 +5352,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter2<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new LessThanBinaryDescriptor
+                        new LessThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor((long)-987654321, typeof(long).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("LongProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters((long)-987654321, typeof(long))
                         ),
-                        new GreaterThanBinaryDescriptor
+                        new GreaterThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor((long)-123456789, typeof(long).AssemblyQualifiedName)
+                            new MemberSelectorOperatorParameters("LongProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters((long)-123456789, typeof(long))
                         )
                     )
                 );
@@ -5383,13 +5380,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position].Contains($it.SimpleEnumProp)");
             Assert.Equal([Position.First, Position.Second], values);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new InDescriptor
+                    new InOperatorParameters
                     (
-                        new MemberSelectorDescriptor("SimpleEnumProp", new ParameterDescriptor(parameterName)),
-                        new CollectionConstantDescriptor(new List<object?> { Position.First, Position.Second }, typeof(Position).AssemblyQualifiedName!)
+                        new MemberSelectorOperatorParameters("SimpleEnumProp", new ParameterOperatorParameters(parameterName)),
+                        new CollectionConstantOperatorParameters(new List<object?> { Position.First, Position.Second }, typeof(Position))
                     )
                 );
         }
@@ -5406,13 +5403,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
             Assert.Equal([Position.First, Position.Second], values);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new InDescriptor
+                    new InOperatorParameters
                     (
-                        new MemberSelectorDescriptor("NullableSimpleEnumProp", new ParameterDescriptor(parameterName)),
-                        new CollectionConstantDescriptor(new List<object?> { Position.First, Position.Second }, typeof(Position?).AssemblyQualifiedName!)
+                        new MemberSelectorOperatorParameters("NullableSimpleEnumProp", new ParameterOperatorParameters(parameterName)),
+                        new CollectionConstantOperatorParameters(new List<object?> { Position.First, Position.Second }, typeof(Position?))
                     )
                 );
         }
@@ -5429,13 +5426,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.Nullable`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position]].Contains($it.NullableSimpleEnumProp)");
             Assert.Equal([Position.First, null], values);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new InDescriptor
+                    new InOperatorParameters
                     (
-                        new MemberSelectorDescriptor("NullableSimpleEnumProp", new ParameterDescriptor(parameterName)),
-                        new CollectionConstantDescriptor(new List<object?> { Position.First, null! }, typeof(Position?).AssemblyQualifiedName!)
+                        new MemberSelectorOperatorParameters("NullableSimpleEnumProp", new ParameterOperatorParameters(parameterName)),
+                        new CollectionConstantOperatorParameters(new List<object?> { Position.First, null! }, typeof(Position?))
                     )
                 );
         }
@@ -5454,17 +5451,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter1<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new LessThanBinaryDescriptor
+                        new LessThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(4321.56F)
+                            new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(4321.56F)
                         ),
-                        new GreaterThanBinaryDescriptor
+                        new GreaterThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("FloatProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1234.56f)
+                            new MemberSelectorOperatorParameters("FloatProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1234.56f)
                         )
                     )
                 );
@@ -5472,17 +5469,17 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter2<T>()
                 => GetFilter<T>
                 (
-                    new AndBinaryDescriptor
+                    new AndBinaryOperatorParameters
                     (
-                        new LessThanBinaryDescriptor
+                        new LessThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(4321.56M)
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(4321.56M)
                         ),
-                        new GreaterThanBinaryDescriptor
+                        new GreaterThanBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor(1234.56m)
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters(1234.56m)
                         )
                     )
                 );
@@ -5512,10 +5509,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(literal)
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(literal)
                     )
                 );
         }
@@ -5558,10 +5555,10 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(c.ToString())
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(c.ToString())
                     )
                 );
         }
@@ -5577,24 +5574,24 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.EnumerableProducts.Cast().Any(p => (p.ProductName == \"ProductName\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new CollectionCastDescriptor
+                        new CollectionCastOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "EnumerableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(DerivedProduct).AssemblyQualifiedName!
+                            typeof(DerivedProduct)
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                             new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("p")),
-                             new ConstantDescriptor("ProductName")
+                             new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("p")),
+                             new ConstantOperatorParameters("ProductName")
                         ),
                         "p"
                     )
@@ -5610,24 +5607,24 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => $it.Category.QueryableProducts.Cast().Any(p => (p.ProductName == \"ProductName\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new CollectionCastDescriptor
+                        new CollectionCastOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "QueryableProducts",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(DerivedProduct).AssemblyQualifiedName!
+                            typeof(DerivedProduct)
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                             new MemberSelectorDescriptor("ProductName", new ParameterDescriptor("p")),
-                             new ConstantDescriptor("ProductName")
+                             new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters("p")),
+                             new ConstantOperatorParameters("ProductName")
                         ),
                         "p"
                     )
@@ -5646,24 +5643,24 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.True(result1);
             Assert.False(result2);
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new CollectionCastDescriptor
+                        new CollectionCastOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "Products",
-                                new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(DerivedProduct).AssemblyQualifiedName!
+                            typeof(DerivedProduct)
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                             new MemberSelectorDescriptor("DerivedProductName", new ParameterDescriptor("p")),
-                             new ConstantDescriptor("DerivedProductName")
+                             new MemberSelectorOperatorParameters("DerivedProductName", new ParameterOperatorParameters("p")),
+                             new ConstantOperatorParameters("DerivedProductName")
                         ),
                         "p"
                     )
@@ -5671,7 +5668,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         }
 
         [Fact]
-        public void NSCast_OnSingleEntity_GeneratesExpression_WithAsDescriptor()
+        public void NSCast_OnSingleEntity_GeneratesExpression_WithAsOperatorParameters()
         {
             //act
             var filter = CreateFilter<DerivedProduct>();
@@ -5679,28 +5676,28 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => (($it As Product).ProductName == \"ProductName\")");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "ProductName",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new ParameterDescriptor(parameterName),
-                                typeof(Product).AssemblyQualifiedName!
+                                new ParameterOperatorParameters(parameterName),
+                                typeof(Product)
                             )
                         ),
-                        new ConstantDescriptor("ProductName")
+                        new ConstantOperatorParameters("ProductName")
                     )
                 );
         }
 
-        public class Inheritance_WithDerivedInstanceTheoryData(DescriptorBase filterBody)
+        public class Inheritance_WithDerivedInstanceTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<Inheritance_WithDerivedInstanceTheoryData> Inheritance_WithDerivedInstance_Data
@@ -5708,84 +5705,84 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new Inheritance_WithDerivedInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "ProductName",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new ParameterDescriptor(parameterName),
-                                typeof(Product).AssemblyQualifiedName!
+                                new ParameterOperatorParameters(parameterName),
+                                typeof(Product)
                             )
                         ),
-                        new ConstantDescriptor("ProductName")
+                        new ConstantOperatorParameters("ProductName")
                     )
                 ),
                 new Inheritance_WithDerivedInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "DerivedProductName",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new ParameterDescriptor(parameterName),
-                                typeof(DerivedProduct).AssemblyQualifiedName!
+                                new ParameterOperatorParameters(parameterName),
+                                typeof(DerivedProduct)
                             )
                         ),
-                        new ConstantDescriptor("DerivedProductName")
+                        new ConstantOperatorParameters("DerivedProductName")
                     )
                 ),
                 new Inheritance_WithDerivedInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryID",
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "Category",
-                                new CastDescriptor
+                                new CastOperatorParameters
                                 (
-                                    new ParameterDescriptor(parameterName),
-                                    typeof(DerivedProduct).AssemblyQualifiedName!
+                                    new ParameterOperatorParameters(parameterName),
+                                    typeof(DerivedProduct)
                                 )
                             )
                         ),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(123)
                     )
                 ),
                 new Inheritance_WithDerivedInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryID",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
                                 (
                                     "Category",
-                                    new CastDescriptor
+                                    new CastOperatorParameters
                                     (
-                                        new ParameterDescriptor(parameterName),
-                                        typeof(DerivedProduct).AssemblyQualifiedName!
+                                        new ParameterOperatorParameters(parameterName),
+                                        typeof(DerivedProduct)
                                     )
                                 ),
-                                typeof(DerivedCategory).AssemblyQualifiedName!
+                                typeof(DerivedCategory)
                             )
                         ),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(123)
                     )
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(Inheritance_WithDerivedInstance_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(Inheritance_WithDerivedInstance_Data), MemberType = typeof(FilterParameterTests))]
         public void Inheritance_WithDerivedInstance(Inheritance_WithDerivedInstanceTheoryData theoryData)
         {
             //act
@@ -5802,9 +5799,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class Inheritance_WithBaseInstanceTheoryData(DescriptorBase filterBody)
+        public class Inheritance_WithBaseInstanceTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<Inheritance_WithBaseInstanceTheoryData> Inheritance_WithBaseInstance_Data
@@ -5812,68 +5809,68 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new Inheritance_WithBaseInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "DerivedProductName",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new ParameterDescriptor(parameterName),
-                                typeof(DerivedProduct).AssemblyQualifiedName!
+                                new ParameterOperatorParameters(parameterName),
+                                typeof(DerivedProduct)
                             )
                         ),
-                        new ConstantDescriptor("DerivedProductName")
+                        new ConstantOperatorParameters("DerivedProductName")
                     )
                 ),
                 new Inheritance_WithBaseInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryID",
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "Category",
-                                new CastDescriptor
+                                new CastOperatorParameters
                                 (
-                                    new ParameterDescriptor(parameterName),
-                                    typeof(DerivedProduct).AssemblyQualifiedName!
+                                    new ParameterOperatorParameters(parameterName),
+                                    typeof(DerivedProduct)
                                 )
                             )
                         ),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(123)
                     )
                 ),
                 new Inheritance_WithBaseInstanceTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor
+                        new MemberSelectorOperatorParameters
                         (
                             "CategoryID",
-                            new CastDescriptor
+                            new CastOperatorParameters
                             (
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
                                 (
                                     "Category",
-                                    new CastDescriptor
+                                    new CastOperatorParameters
                                     (
-                                        new ParameterDescriptor(parameterName),
-                                        typeof(DerivedProduct).AssemblyQualifiedName!
+                                        new ParameterOperatorParameters(parameterName),
+                                        typeof(DerivedProduct)
                                     )
                                 ),
-                                typeof(DerivedCategory).AssemblyQualifiedName!
+                                typeof(DerivedCategory)
                             )
                         ),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(123)
                     )
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(Inheritance_WithBaseInstance_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(Inheritance_WithBaseInstance_Data), MemberType = typeof(FilterParameterTests))]
         public void Inheritance_WithBaseInstance(Inheritance_WithBaseInstanceTheoryData theoryData)
         {
             //act
@@ -5889,9 +5886,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class CastMethod_SucceedsTheoryData(DescriptorBase filterBody, string expectedResult)
+        public class CastMethod_SucceedsTheoryData(IExpressionParameter filterBody, string expectedResult)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedResult { get; } = expectedResult;
         }
 
@@ -5900,470 +5897,470 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(null!)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => (null == null)"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(123)
                     ),
                     "$it => (null == Convert(123))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(123)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(123)
                     ),
                     "$it => (null != Convert(123))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(true)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(true)
                     ),
                     "$it => (null != Convert(True))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(1)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(1)
                     ),
                     "$it => (null != Convert(1))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(Guid.Empty)
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(Guid.Empty)
                     ),
                     "$it => (null == Convert(00000000-0000-0000-0000-000000000000))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (null != \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(new DateTimeOffset(new DateTime(2001, 1, 1, 12, 0, 0, DateTimeKind.Unspecified), new TimeSpan(8, 0, 0)))
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(new DateTimeOffset(new DateTime(2001, 1, 1, 12, 0, 0, DateTimeKind.Unspecified), new TimeSpan(8, 0, 0)))
                     ),
                     "$it => (null == Convert(01/01/2001 12:00:00 +08:00))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new ConstantDescriptor(new TimeSpan(7775999999000))
+                        new ConstantOperatorParameters(null!),
+                        new ConstantOperatorParameters(new TimeSpan(7775999999000))
                     ),
                     "$it => (null == Convert(8.23:59:59.9999000))"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("IntProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("IntProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.IntProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("LongProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.LongProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("SingleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("SingleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.SingleProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DoubleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.DoubleProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DecimalProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.DecimalProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("BoolProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("BoolProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.BoolProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ByteProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("ByteProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.ByteProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("GuidProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("GuidProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.GuidProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("StringProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("123")
+                        new MemberSelectorOperatorParameters("StringProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.StringProp == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("DateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("DateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.DateTimeOffsetProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("TimeSpanProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("TimeSpanProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => ($it.TimeSpanProp.ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("SimpleEnumProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("SimpleEnumProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (Convert($it.SimpleEnumProp).ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("FlagsEnumProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("FlagsEnumProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (Convert($it.FlagsEnumProp).ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("LongEnumProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("LongEnumProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (Convert($it.LongEnumProp).ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableIntProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableIntProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableIntProp.HasValue, $it.NullableIntProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableLongProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableLongProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableLongProp.HasValue, $it.NullableLongProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableSingleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableSingleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableSingleProp.HasValue, $it.NullableSingleProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDoubleProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDoubleProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableDoubleProp.HasValue, $it.NullableDoubleProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDecimalProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDecimalProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableDecimalProp.HasValue, $it.NullableDecimalProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableBoolProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableBoolProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableBoolProp.HasValue, $it.NullableBoolProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableByteProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableByteProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableByteProp.HasValue, $it.NullableByteProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableGuidProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableGuidProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableGuidProp.HasValue, $it.NullableGuidProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableDateTimeOffsetProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableDateTimeOffsetProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableDateTimeOffsetProp.HasValue, $it.NullableDateTimeOffsetProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableTimeSpanProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableTimeSpanProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableTimeSpanProp.HasValue, $it.NullableTimeSpanProp.Value.ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableSimpleEnumProp", new ParameterDescriptor(parameterName))
+                            new MemberSelectorOperatorParameters("NullableSimpleEnumProp", new ParameterOperatorParameters(parameterName))
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (IIF($it.NullableSimpleEnumProp.HasValue, Convert($it.NullableSimpleEnumProp.Value).ToString(), null) == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("IntProp", new ParameterDescriptor(parameterName)),
-                            typeof(long).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("IntProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(long)
                         ),
-                        new ConstantDescriptor((long)123)
+                        new ConstantOperatorParameters((long)123)
                     ),
                     "$it => (Convert($it.IntProp) == 123)"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new MemberSelectorDescriptor("NullableLongProp", new ParameterDescriptor(parameterName)),
-                            typeof(double).AssemblyQualifiedName!
+                            new MemberSelectorOperatorParameters("NullableLongProp", new ParameterOperatorParameters(parameterName)),
+                            typeof(double)
                         ),
-                        new ConstantDescriptor(1.23d)
+                        new ConstantOperatorParameters(1.23d)
                     ),
                     "$it => (Convert($it.NullableLongProp) == 1.23)"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new ConstantDescriptor(2147483647),
-                            typeof(short).AssemblyQualifiedName!
+                            new ConstantOperatorParameters(2147483647),
+                            typeof(short)
                         ),
-                        new ConstantDescriptor(null!)
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => (Convert(Convert(2147483647)) != null)"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new ConstantDescriptor(Position.Second, typeof(Position).AssemblyQualifiedName!)
+                            new ConstantOperatorParameters(Position.Second, typeof(Position))
                         ),
-                        new ConstantDescriptor("1")
+                        new ConstantOperatorParameters("1")
                     ),
                     "$it => (Convert(Second).ToString() == \"1\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new ConvertDescriptor
+                            new ConvertOperatorParameters
                             (
-                                new ConvertDescriptor
+                                new ConvertOperatorParameters
                                 (
-                                    new MemberSelectorDescriptor("IntProp", new ParameterDescriptor(parameterName)),
-                                    typeof(long).AssemblyQualifiedName!
+                                    new MemberSelectorOperatorParameters("IntProp", new ParameterOperatorParameters(parameterName)),
+                                    typeof(long)
                                 ),
-                                typeof(short).AssemblyQualifiedName!
+                                typeof(short)
                             )
                         ),
-                        new ConstantDescriptor("123")
+                        new ConstantOperatorParameters("123")
                     ),
                     "$it => (Convert(Convert($it.IntProp)).ToString() == \"123\")"
                 ),
                 new CastMethod_SucceedsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConvertToEnumDescriptor
+                        new ConvertToEnumOperatorParameters
                         (
                             "123",
-                            typeof(Position).AssemblyQualifiedName!
+                            typeof(Position)
                         ),
-                        new ConstantDescriptor(null!)
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => (Convert(123) != null)"
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(CastMethod_Succeeds_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(CastMethod_Succeeds_Data), MemberType = typeof(FilterParameterTests))]
         public void CastMethod_Succeeds(CastMethod_SucceedsTheoryData theoryData)
         {
             //act
@@ -6381,9 +6378,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         #endregion Casts
 
         #region 'isof' in query option
-        public class IsofMethod_SucceedsTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class IsofMethod_SucceedsTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -6392,62 +6389,62 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(short).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(short)
                     ),
                     "$it => IIF(($it Is System.Int16), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Product).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Product)
                     ),
                     "$it => IIF(($it Is LogicBuilder.EntityFrameworkCore.Tests.Data.Product), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        typeof(string).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        typeof(string)
                     ),
                     "$it => IIF(($it.ProductName Is System.String), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName)),
-                        typeof(Category).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName)),
+                        typeof(Category)
                     ),
                     "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.Tests.Data.Category), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName)),
-                        typeof(DerivedCategory).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName)),
+                        typeof(DerivedCategory)
                     ),
                     "$it => IIF(($it.Category Is LogicBuilder.EntityFrameworkCore.Tests.Data.DerivedCategory), True, False)"
                 ),
                 new IsofMethod_SucceedsTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Ranking", new ParameterDescriptor(parameterName)),
-                        typeof(Position).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("Ranking", new ParameterOperatorParameters(parameterName)),
+                        typeof(Position)
                     ),
                     "$it => IIF(($it.Ranking Is LogicBuilder.EntityFrameworkCore.Tests.Data.Position), True, False)"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(IsofMethod_Succeeds_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(IsofMethod_Succeeds_Data), MemberType = typeof(FilterParameterTests))]
         public void IsofMethod_Succeeds(IsofMethod_SucceedsTheoryData theoryData)
         {
             //act
@@ -6463,9 +6460,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class IsOfPrimitiveType_Succeeds_WithFalseTheoryData(DescriptorBase filterBody)
+        public class IsOfPrimitiveType_Succeeds_WithFalseTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<IsOfPrimitiveType_Succeeds_WithFalseTheoryData> IsOfPrimitiveType_Succeeds_WithFalse_Data
@@ -6473,472 +6470,472 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(byte[]).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(byte[])
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(bool).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(bool)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(byte).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(byte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(DateTimeOffset).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(DateTimeOffset)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Decimal).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Decimal)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(double).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(double)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(TimeSpan).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(TimeSpan)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Guid).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Guid)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Int16).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Int16)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Int32).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Int32)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Int64).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Int64)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(sbyte).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(sbyte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Single).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Single)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(System.IO.Stream).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(System.IO.Stream)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(string).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(string)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Position).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Position)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Bits).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Bits)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayProp", new ParameterDescriptor(parameterName)),
-                        typeof(byte[]).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("ByteArrayProp", new ParameterOperatorParameters(parameterName)),
+                        typeof(byte[])
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("IntProp", new ParameterDescriptor(parameterName)),
-                        typeof(Position).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("IntProp", new ParameterOperatorParameters(parameterName)),
+                        typeof(Position)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("NullableShortProp", new ParameterDescriptor(parameterName)),
-                        typeof(short).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("NullableShortProp", new ParameterOperatorParameters(parameterName)),
+                        typeof(short)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(byte[]).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(byte[])
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(bool).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(bool)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(byte).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(byte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(DateTimeOffset).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(DateTimeOffset)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Decimal).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Decimal)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(double).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(double)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(TimeSpan).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(TimeSpan)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Guid).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Guid)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Int16).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Int16)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Int32).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Int32)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Int64).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Int64)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(sbyte).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(sbyte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Single).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Single)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(System.IO.Stream).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(System.IO.Stream)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(string).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(string)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Position).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Position)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(Bits).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(Bits)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(byte).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(byte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(decimal).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(decimal)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(double).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(double)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(short).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(short)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(long).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(long)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(sbyte).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(sbyte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(float).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(float)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("hello"),
-                        typeof(Stream).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("hello"),
+                        typeof(Stream)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(0),
-                        typeof(Bits).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(0),
+                        typeof(Bits)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(0),
-                        typeof(Position).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(0),
+                        typeof(Position)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("2001-01-01T12:00:00.000+08:00"),
-                        typeof(DateTimeOffset).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("2001-01-01T12:00:00.000+08:00"),
+                        typeof(DateTimeOffset)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("00000000-0000-0000-0000-000000000000"),
-                        typeof(Guid).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("00000000-0000-0000-0000-000000000000"),
+                        typeof(Guid)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("23"),
-                        typeof(byte).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("23"),
+                        typeof(byte)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("23"),
-                        typeof(short).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("23"),
+                        typeof(short)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("23"),
-                        typeof(int).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("23"),
+                        typeof(int)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("false"),
-                        typeof(bool).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("false"),
+                        typeof(bool)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("OData"),
-                        typeof(byte[]).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("OData"),
+                        typeof(byte[])
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("PT12H'"),
-                        typeof(TimeSpan).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("PT12H'"),
+                        typeof(TimeSpan)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(23),
-                        typeof(string).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(23),
+                        typeof(string)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("0"),
-                        typeof(Bits).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("0"),
+                        typeof(Bits)
                     )
                 ),
                 new IsOfPrimitiveType_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor("0"),
-                        typeof(Position).AssemblyQualifiedName!
+                        new ConstantOperatorParameters("0"),
+                        typeof(Position)
                     )
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(IsOfPrimitiveType_Succeeds_WithFalse_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(IsOfPrimitiveType_Succeeds_WithFalse_Data), MemberType = typeof(FilterParameterTests))]
         public void IsOfPrimitiveType_Succeeds_WithFalse(IsOfPrimitiveType_Succeeds_WithFalseTheoryData theoryData)
         {
             //arrange
@@ -6958,9 +6955,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class IsOfQuotedNonPrimitiveTypeTheoryData(DescriptorBase filterBody)
+        public class IsOfQuotedNonPrimitiveTypeTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<IsOfQuotedNonPrimitiveTypeTheoryData> IsOfQuotedNonPrimitiveType
@@ -6968,32 +6965,32 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new IsOfQuotedNonPrimitiveTypeTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        typeof(DerivedProduct).AssemblyQualifiedName!
+                        new ParameterOperatorParameters(parameterName),
+                        typeof(DerivedProduct)
                     )
                 ),
                 new IsOfQuotedNonPrimitiveTypeTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("SupplierAddress", new ParameterDescriptor(parameterName)),
-                        typeof(Address).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("SupplierAddress", new ParameterOperatorParameters(parameterName)),
+                        typeof(Address)
                     )
                 ),
                 new IsOfQuotedNonPrimitiveTypeTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName)),
-                        typeof(DerivedCategory).AssemblyQualifiedName!
+                        new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName)),
+                        typeof(DerivedCategory)
                     )
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(IsOfQuotedNonPrimitiveType), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(IsOfQuotedNonPrimitiveType), MemberType = typeof(FilterParameterTests))]
         public void IsOfQuotedNonPrimitiveType_Succeeds(IsOfQuotedNonPrimitiveTypeTheoryData theoryData)
         {
             //arrange
@@ -7017,9 +7014,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData(DescriptorBase filterBody)
+        public class IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData> IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalse_Data
@@ -7027,24 +7024,24 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(Address).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(Address)
                     )
                 ),
                 new IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData
                 (
-                    new IsOfDescriptor
+                    new IsOfOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        typeof(DerivedCategory).AssemblyQualifiedName!
+                        new ConstantOperatorParameters(null!),
+                        typeof(DerivedCategory)
                     )
                 )
             ];
 
         [Theory]
-        [MemberData(nameof(IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalse_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalse_Data), MemberType = typeof(FilterParameterTests))]
         public void IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalse(IsOfQuotedNonPrimitiveTypeWithNull_Succeeds_WithFalseTheoryData theoryData)
         {
             //arrange
@@ -7070,9 +7067,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         #endregion 'isof' in query option
 
         #region
-        public class ByteArrayComparisonsTheoryData(DescriptorBase filterBody, string expectedExpression, bool expectedResult)
+        public class ByteArrayComparisonsTheoryData(IExpressionParameter filterBody, string expectedExpression, bool expectedResult)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
             public bool ExpectedResult { get; } = expectedResult;
         }
@@ -7082,100 +7079,100 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new ByteArrayComparisonsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/"))
+                        new MemberSelectorOperatorParameters("ByteArrayProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/"))
                     ),
                     "$it => ($it.ByteArrayProp == System.Byte[])",
                     true
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayProp", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/"))
+                        new MemberSelectorOperatorParameters("ByteArrayProp", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/"))
                     ),
                     "$it => ($it.ByteArrayProp != System.Byte[])",
                     false
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/")),
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/"))
                     ),
                     "$it => (System.Byte[] == System.Byte[])",
                     true
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/")),
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/"))
                     ),
                     "$it => (System.Byte[] != System.Byte[])",
                     false
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(Convert.FromBase64String("I6v/"))
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(Convert.FromBase64String("I6v/"))
                     ),
                     "$it => ($it.ByteArrayPropWithNullValue != System.Byte[])",
                     true
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName)),
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName))
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName)),
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => ($it.ByteArrayPropWithNullValue != $it.ByteArrayPropWithNullValue)",
                     false
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.ByteArrayPropWithNullValue != null)",
                     false
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor(null!)
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters(null!)
                     ),
                     "$it => ($it.ByteArrayPropWithNullValue == null)",
                     true
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new NotEqualsBinaryDescriptor
+                    new NotEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null != $it.ByteArrayPropWithNullValue)",
                     false
                 ),
                 new ByteArrayComparisonsTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(null!),
-                        new MemberSelectorDescriptor("ByteArrayPropWithNullValue", new ParameterDescriptor(parameterName))
+                        new ConstantOperatorParameters(null!),
+                        new MemberSelectorOperatorParameters("ByteArrayPropWithNullValue", new ParameterOperatorParameters(parameterName))
                     ),
                     "$it => (null == $it.ByteArrayPropWithNullValue)",
                     true
@@ -7183,7 +7180,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             ];
 
         [Theory]
-        [MemberData(nameof(ByteArrayComparisons_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(ByteArrayComparisons_Data), MemberType = typeof(FilterParameterTests))]
         public void ByteArrayComparisons(ByteArrayComparisonsTheoryData theoryData)
         {
             //act
@@ -7208,9 +7205,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class DisAllowed_ByteArrayComparisonsTheoryData(DescriptorBase filterBody)
+        public class DisAllowed_ByteArrayComparisonsTheoryData(IExpressionParameter filterBody)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
         }
 
         public static TheoryData<DisAllowed_ByteArrayComparisonsTheoryData> DisAllowed_ByteArrayComparisons_Data
@@ -7218,40 +7215,40 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new DisAllowed_ByteArrayComparisonsTheoryData
                 (
-                    new GreaterThanOrEqualsBinaryDescriptor
+                    new GreaterThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q")),
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q"))
                     )
                 ),
                 new DisAllowed_ByteArrayComparisonsTheoryData
                 (
-                    new LessThanOrEqualsBinaryDescriptor
+                    new LessThanOrEqualsBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q")),
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q"))
                     )
                 ),
                 new DisAllowed_ByteArrayComparisonsTheoryData
                 (
-                    new LessThanBinaryDescriptor
+                    new LessThanBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q")),
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q"))
                     )
                 ),
                 new DisAllowed_ByteArrayComparisonsTheoryData
                 (
-                    new GreaterThanBinaryDescriptor
+                    new GreaterThanBinaryOperatorParameters
                     (
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q")),
-                        new ConstantDescriptor(Convert.FromBase64String("AP8Q"))
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q")),
+                        new ConstantOperatorParameters(Convert.FromBase64String("AP8Q"))
                     )
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(DisAllowed_ByteArrayComparisons_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(DisAllowed_ByteArrayComparisons_Data), MemberType = typeof(FilterParameterTests))]
         public void DisAllowed_ByteArrayComparisons(DisAllowed_ByteArrayComparisonsTheoryData theoryData)
         {
             //assert
@@ -7263,9 +7260,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class Nullable_NonstandardEdmPrimitivesTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class Nullable_NonstandardEdmPrimitivesTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -7274,71 +7271,71 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             [
                 new Nullable_NonstandardEdmPrimitivesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new ConvertToNullableUnderlyingValueDescriptor
+                            new ConvertToNullableUnderlyingValueOperatorParameters
                             (
-                                new MemberSelectorDescriptor("NullableUShortProp", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("NullableUShortProp", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(int?).AssemblyQualifiedName!
+                            typeof(int?)
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => (Convert($it.NullableUShortProp.Value) == Convert(12))"
                 ),
                 new Nullable_NonstandardEdmPrimitivesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new ConvertToNullableUnderlyingValueDescriptor
+                            new ConvertToNullableUnderlyingValueOperatorParameters
                             (
-                                new MemberSelectorDescriptor("NullableULongProp", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("NullableULongProp", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(long?).AssemblyQualifiedName!
+                            typeof(long?)
                         ),
-                        new ConstantDescriptor(12L)
+                        new ConstantOperatorParameters(12L)
                     ),
                     "$it => (Convert($it.NullableULongProp.Value) == Convert(12))"
                 ),
                 new Nullable_NonstandardEdmPrimitivesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertDescriptor
+                        new ConvertOperatorParameters
                         (
-                            new ConvertToNullableUnderlyingValueDescriptor
+                            new ConvertToNullableUnderlyingValueOperatorParameters
                             (
-                                new MemberSelectorDescriptor("NullableUIntProp", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("NullableUIntProp", new ParameterOperatorParameters(parameterName))
                             ),
-                            typeof(int?).AssemblyQualifiedName!
+                            typeof(int?)
                         ),
-                        new ConstantDescriptor(12)
+                        new ConstantOperatorParameters(12)
                     ),
                     "$it => (Convert($it.NullableUIntProp.Value) == Convert(12))"
                 ),
                 new Nullable_NonstandardEdmPrimitivesTheoryData
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new ConvertToStringDescriptor
+                        new ConvertToStringOperatorParameters
                         (
-                            new ConvertToNullableUnderlyingValueDescriptor
+                            new ConvertToNullableUnderlyingValueOperatorParameters
                             (
-                                new MemberSelectorDescriptor("NullableCharProp", new ParameterDescriptor(parameterName))
+                                new MemberSelectorOperatorParameters("NullableCharProp", new ParameterOperatorParameters(parameterName))
                             )
                         ),
-                        new ConstantDescriptor("a")
+                        new ConstantOperatorParameters("a")
                     ),
                     "$it => ($it.NullableCharProp.Value.ToString() == \"a\")"
                 ),
             ];
 
         [Theory]
-        [MemberData(nameof(Nullable_NonstandardEdmPrimitives_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(Nullable_NonstandardEdmPrimitives_Data), MemberType = typeof(FilterParameterTests))]
         public void Nullable_NonstandardEdmPrimitives(Nullable_NonstandardEdmPrimitivesTheoryData theoryData)
         {
             //act
@@ -7355,9 +7352,9 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 );
         }
 
-        public class InOnNavigationTheoryData(DescriptorBase filterBody, string expectedExpression)
+        public class InOnNavigationTheoryData(IExpressionParameter filterBody, string expectedExpression)
         {
-            public DescriptorBase FilterBody { get; } = filterBody;
+            public IExpressionParameter FilterBody { get; } = filterBody;
             public string ExpectedExpression { get; } = expectedExpression;
         }
 
@@ -7366,76 +7363,76 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 [
                     new InOnNavigationTheoryData
                     (
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "ProductID",
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
                                 (
                                     "Product",
-                                    new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                    new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                                 )
                             ),
-                            new CollectionConstantDescriptor
+                            new CollectionConstantOperatorParameters
                             (
                                 [1],
-                                typeof(int).AssemblyQualifiedName!
+                                typeof(int)
                             )
                         ),
                         "$it => System.Collections.Generic.List`1[System.Int32].Contains($it.Category.Product.ProductID)"
                     ),
                     new InOnNavigationTheoryData
                     (
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor("Category.Product.ProductID", new ParameterDescriptor(parameterName)),
-                            new CollectionConstantDescriptor
+                            new MemberSelectorOperatorParameters("Category.Product.ProductID", new ParameterOperatorParameters(parameterName)),
+                            new CollectionConstantOperatorParameters
                             (
                                 [1],
-                                typeof(int).AssemblyQualifiedName!
+                                typeof(int)
                             )
                         ),
                         "$it => System.Collections.Generic.List`1[System.Int32].Contains($it.Category.Product.ProductID)"
                     ),
                     new InOnNavigationTheoryData
                     (
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "GuidProperty",
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
                                 (
                                     "Product",
-                                    new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                    new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                                 )
                             ),
-                            new CollectionConstantDescriptor
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid).AssemblyQualifiedName!
+                                typeof(Guid)
                             )
                         ),
                         "$it => System.Collections.Generic.List`1[System.Guid].Contains($it.Category.Product.GuidProperty)"
                     ),
                     new InOnNavigationTheoryData
                     (
-                        new InDescriptor
+                        new InOperatorParameters
                         (
-                            new MemberSelectorDescriptor
+                            new MemberSelectorOperatorParameters
                             (
                                 "NullableGuidProperty",
-                                new MemberSelectorDescriptor
+                                new MemberSelectorOperatorParameters
                                 (
                                     "Product",
-                                    new MemberSelectorDescriptor("Category", new ParameterDescriptor(parameterName))
+                                    new MemberSelectorOperatorParameters("Category", new ParameterOperatorParameters(parameterName))
                                 )
                             ),
-                            new CollectionConstantDescriptor
+                            new CollectionConstantOperatorParameters
                             (
                                 [new Guid("dc75698b-581d-488b-9638-3e28dd51d8f7")],
-                                typeof(Guid?).AssemblyQualifiedName!
+                                typeof(Guid?)
                             )
                         ),
                         "$it => System.Collections.Generic.List`1[System.Nullable`1[System.Guid]].Contains($it.Category.Product.NullableGuidProperty)"
@@ -7443,7 +7440,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                 ];
 
         [Theory]
-        [MemberData(nameof(InOnNavigation_Data), MemberType = typeof(FilterDescriptorTests))]
+        [MemberData(nameof(InOnNavigation_Data), MemberType = typeof(FilterParameterTests))]
         public void InOnNavigation(InOnNavigationTheoryData theoryData)
         {
             //act
@@ -7468,36 +7465,36 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => (((($it.ProductName == \"1\") OrElse ($it.ProductName == \"2\")) OrElse ($it.ProductName == \"3\")) OrElse ($it.ProductName == \"4\"))");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new OrBinaryDescriptor
+                    new OrBinaryOperatorParameters
                     (
-                        new OrBinaryDescriptor
+                        new OrBinaryOperatorParameters
                         (
-                            new OrBinaryDescriptor
+                            new OrBinaryOperatorParameters
                             (
-                                new EqualsBinaryDescriptor
+                                new EqualsBinaryOperatorParameters
                                 (
-                                    new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                    new ConstantDescriptor("1")
+                                    new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                    new ConstantOperatorParameters("1")
                                 ),
-                                new EqualsBinaryDescriptor
+                                new EqualsBinaryOperatorParameters
                                 (
-                                    new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                    new ConstantDescriptor("2")
+                                    new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                    new ConstantOperatorParameters("2")
                                 )
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                                new ConstantDescriptor("3")
+                                new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                                new ConstantOperatorParameters("3")
                             )
                         ),
-                        new EqualsBinaryDescriptor
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                            new ConstantDescriptor("4")
+                            new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                            new ConstantOperatorParameters("4")
                         )
                     )
                 );
@@ -7512,13 +7509,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => ($it.ProductName == \"1\")");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new EqualsBinaryDescriptor
+                    new EqualsBinaryOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new ConstantDescriptor("1")
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new ConstantOperatorParameters("1")
                     )
                 );
         }
@@ -7532,16 +7529,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[System.String].Contains($it.ProductName)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new InDescriptor
+                    new InOperatorParameters
                     (
-                        new MemberSelectorDescriptor("ProductName", new ParameterDescriptor(parameterName)),
-                        new CollectionConstantDescriptor
+                        new MemberSelectorOperatorParameters("ProductName", new ParameterOperatorParameters(parameterName)),
+                        new CollectionConstantOperatorParameters
                         (
                             new List<object?> { "Prod1", "Prod2" },
-                            typeof(string).AssemblyQualifiedName!
+                            typeof(string)
                         )
                     )
                 );
@@ -7556,37 +7553,58 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             //assert
             AssertFilterStringIsCorrect(filter, "$it => System.Collections.Generic.List`1[LogicBuilder.EntityFrameworkCore.Tests.Data.Position].Contains($it.SimpleEnumProp)");
 
-            Expression<Func<T, bool>> CreateFilter<T>()
+            static Expression<Func<T, bool>> CreateFilter<T>()
                 => GetFilter<T>
                 (
-                    new InDescriptor
+                    new InOperatorParameters
                     (
-                        new MemberSelectorDescriptor("SimpleEnumProp", new ParameterDescriptor(parameterName)),
-                        new CollectionConstantDescriptor
+                        new MemberSelectorOperatorParameters("SimpleEnumProp", new ParameterOperatorParameters(parameterName)),
+                        new CollectionConstantOperatorParameters
                         (
                             new List<object?> { Position.First, Position.Second },
-                            typeof(Position).AssemblyQualifiedName!
+                            typeof(Position)
                         )
                     )
                 );
         }
         #endregion
 
+        #region Helpers
+        private static void AssertFilterStringIsCorrect(Expression expression, string expected)
+        {
+            string resultExpression = ExpressionStringBuilder.ToString(expression);
+            Assert.True(expected == resultExpression, string.Format("Expected expression '{0}' but the deserializer produced '{1}'", expected, resultExpression));
+        }
+
+        private static Expression<Func<T, bool>> GetFilter<T>(IExpressionParameter filterBody)
+        {
+            IMapper mapper = serviceProvider.GetRequiredService<IMapper>();
+            IExpressionParameter completeLambda = new FilterLambdaOperatorParameters
+            (
+                filterBody,
+                typeof(T),
+                parameterName
+            );//Create IExpressionParameter for lambda expression e.g. $it => $it.Any()
+
+            return (Expression<Func<T, bool>>)mapper.Map<FilterLambdaOperator>//map the complete lambda from decriptor object to operator object
+            (
+                mapper.Map<DescriptorBase>(completeLambda),//map the complete lambda from parameter object to the FilterLambdaDescriptor object
+                opts => opts.Items["parameters"] = new Dictionary<string, ParameterExpression>()
+            ).Build();//create the lambda expression from the operator object
+        }
+
         [MemberNotNull(nameof(MapperConfiguration))]
-        private static void InitializeMapperConfiguration()
+        [MemberNotNull(nameof(serviceProvider))]
+        private static void Initialize()
         {
             MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
             {
-                cfg.AddExpressionMapping();
                 cfg.AddProfile<ExpressionOperatorsMappingProfile>();
+                cfg.AddProfile<ExpressionParameterToDescriptorMappingProfile>();
             });
-        }
 
-        static MapperConfiguration MapperConfiguration;
+            MapperConfiguration.AssertConfigurationIsValid();
 
-        [MemberNotNull(nameof(serviceProvider))]
-        private void Initialize()
-        {
             serviceProvider = new ServiceCollection()
                 .AddSingleton<AutoMapper.IConfigurationProvider>
                 (
@@ -7602,43 +7620,11 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             return str.PadRight(number);
         }
 
-        private static T? ToNullable<T>(object? value) where T : struct =>
-            value == null ? null : (T?)Convert.ChangeType(value, typeof(T));
-
-        private static Dictionary<string, ParameterExpression> GetParameters()
-            => [];
-
-        private static void AssertFilterStringIsCorrect(Expression expression, string expected)
-        {
-            string resultExpression = ExpressionStringBuilder.ToString(expression);
-            Assert.True(expected == resultExpression, string.Format("Expected expression '{0}' but the deserializer produced '{1}'", expected, resultExpression));
-        }
-
-        private Expression<Func<T, bool>> GetFilter<T>(DescriptorBase filterBody)
-        {
-            IMapper mapper = serviceProvider.GetRequiredService<IMapper>();
-
-            return (Expression<Func<T, bool>>)mapper.Map<FilterLambdaOperator>
-            (
-                new FilterLambdaDescriptor
-                (
-                    filterBody,
-                    typeof(T).AssemblyQualifiedName!,
-                    parameterName
-                ),
-                opts => opts.Items["parameters"] = GetParameters()
-            ).Build();
-        }
-
         private static bool RunFilter<TModel>(Expression<Func<TModel, bool>> filter, TModel instance)
             => filter.Compile().Invoke(instance);
-    }
 
-    public static class StringExtender
-    {
-        public static string PadRightExStatic(this string str, int width)
-        {
-            return str.PadRight(width);
-        }
+        private static T? ToNullable<T>(object? value) where T : struct =>
+            value == null ? null : (T?)Convert.ChangeType(value, typeof(T));
+        #endregion Helpers
     }
 }

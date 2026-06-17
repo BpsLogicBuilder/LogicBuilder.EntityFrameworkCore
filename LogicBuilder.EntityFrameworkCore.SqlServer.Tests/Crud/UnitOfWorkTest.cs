@@ -35,7 +35,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Crud
         #endregion Fields
 
         [Fact]
-        public async Task DiposingUnitOfWork_DisposesContext()
+        public async Task DisposingUnitOfWork_DisposesContext()
         {
             // Arrange
             SchoolContext context = serviceProvider.GetRequiredService<SchoolContext>();
