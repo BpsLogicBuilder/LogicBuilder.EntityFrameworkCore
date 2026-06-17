@@ -37,6 +37,7 @@
     <PackageReference Include="LogicBuilder.Data" Version="8.0.1" />
     <PackageReference Include="LogicBuilder.Domain" Version="8.0.1" />
 		<PackageReference Include="LogicBuilder.Expressions.Utils" Version="8.0.2" />
+		<PackageReference Include="LogicBuilder.Forms.Parameters" Version="2.1.1" />
     <PackageReference Include="MinVer" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

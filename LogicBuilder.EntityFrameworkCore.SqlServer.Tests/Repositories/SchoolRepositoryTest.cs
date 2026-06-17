@@ -51,7 +51,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAlItemsInTheExpectedOrder()
+        public async Task GetStudentsAsync_WithAQueryExpression_ReturnsAllItemsInTheExpectedOrder()
         {
             //arrange
             ISchoolRepository repository = serviceProvider.GetRequiredService<ISchoolRepository>();
@@ -92,7 +92,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
 
 
         [Fact]
-        public async Task QueryAsync_WorksWenModelReturnTypeAndDataReturnTypeAreTheSame()
+        public async Task QueryAsync_WorksWhenModelReturnTypeAndDataReturnTypeAreTheSame()
         {
             //arrange
             ISchoolRepository repository = serviceProvider.GetRequiredService<ISchoolRepository>();
@@ -105,7 +105,7 @@ namespace LogicBuilder.EntityFrameworkCore.SqlServer.Tests.Repositories
         }
 
         [Fact]
-        public async Task QueryAsync_WorksWenModelReturnTypeAndDataReturnTypeAreNotQueryables()
+        public async Task QueryAsync_WorksWhenModelReturnTypeAndDataReturnTypeAreNotQueryables()
         {
             //arrange
             ISchoolRepository repository = serviceProvider.GetRequiredService<ISchoolRepository>();

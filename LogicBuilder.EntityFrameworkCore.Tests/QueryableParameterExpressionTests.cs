@@ -6,6 +6,7 @@ using LogicBuilder.Expressions.Utils;
 using LogicBuilder.Expressions.Utils.ExpressionBuilder.Lambda;
 using LogicBuilder.Expressions.Utils.ExpressionDescriptors;
 using LogicBuilder.Expressions.Utils.Strutures;
+using LogicBuilder.Forms.Parameters.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,60 +17,51 @@ using Xunit;
 
 namespace LogicBuilder.EntityFrameworkCore.Tests
 {
-    public class QueryableExpressionTests
+    public class QueryableParameterExpressionTests
     {
-        static QueryableExpressionTests()
-        {
-            InitializeMapperConfiguration();
-        }
-
-        public QueryableExpressionTests()
+        static QueryableParameterExpressionTests()
         {
             Initialize();
         }
 
-        #region Fields
-        private IServiceProvider serviceProvider;
-        private static readonly string parameterName = "$it";
-        #endregion Fields
-
+        #region Tests
         [Fact]
         public void BuildWhere_OrderBy_ThenBy_Skip_Take_Average()
         {
             //act
-            var descriptor = new AverageDescriptor
+            var descriptor = new AverageOperatorParameters
             (
-                new TakeDescriptor
+                new TakeOperatorParameters
                 (
-                    new SkipDescriptor
+                    new SkipOperatorParameters
                     (
-                        new ThenByDescriptor
+                        new ThenByOperatorParameters
                         (
-                            new OrderByDescriptor
+                            new OrderByOperatorParameters
                             (
-                                new WhereDescriptor
+                                new WhereOperatorParameters
                                 (//q.Where(s => ((s.ID > 1) AndAlso (Compare(s.FirstName, s.LastName) > 0)))
-                                    new ParameterDescriptor("q"),//q. the source operand
-                                    new AndBinaryDescriptor//((s.ID > 1) AndAlso (Compare(s.FirstName, s.LastName) > 0)
+                                    new ParameterOperatorParameters("q"),//q. the source operand
+                                    new AndBinaryOperatorParameters//((s.ID > 1) AndAlso (Compare(s.FirstName, s.LastName) > 0)
                                     (
-                                        new GreaterThanBinaryDescriptor
+                                        new GreaterThanBinaryOperatorParameters
                                         (
-                                            new MemberSelectorDescriptor("Id", new ParameterDescriptor("s")),
-                                            new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName)
+                                            new MemberSelectorOperatorParameters("Id", new ParameterOperatorParameters("s")),
+                                            new ConstantOperatorParameters(1, typeof(int))
                                         ),
-                                        new GreaterThanBinaryDescriptor
+                                        new GreaterThanBinaryOperatorParameters
                                         (
-                                            new MemberSelectorDescriptor("FirstName", new ParameterDescriptor("s")),
-                                            new MemberSelectorDescriptor("LastName", new ParameterDescriptor("s"))
+                                            new MemberSelectorOperatorParameters("FirstName", new ParameterOperatorParameters("s")),
+                                            new MemberSelectorOperatorParameters("LastName", new ParameterOperatorParameters("s"))
                                         )
                                     ),
                                     "s"//s => (created in Where operator.  The parameter type is based on the source operand underlying type in this case Student.)
                                 ),
-                                new MemberSelectorDescriptor("LastName", new ParameterDescriptor("v")),
+                                new MemberSelectorOperatorParameters("LastName", new ParameterOperatorParameters("v")),
                                 ListSortDirection.Ascending,
                                 "v"
                             ),
-                            new MemberSelectorDescriptor("FirstName", new ParameterDescriptor("v")),
+                            new MemberSelectorOperatorParameters("FirstName", new ParameterOperatorParameters("v")),
                             ListSortDirection.Descending,
                             "v"
                         ),
@@ -77,7 +69,7 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                     ),
                     3
                 ),
-                new MemberSelectorDescriptor("Id", new ParameterDescriptor("j")),
+                new MemberSelectorOperatorParameters("Id", new ParameterOperatorParameters("j")),
                 "j"
             );
 
@@ -91,46 +83,49 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         public void BuildGroupBy_OrderBy_ThenBy_Skip_Take_Average()
         {
             //act
-            var descriptor = new SelectDescriptor
+            var descriptor = new SelectOperatorParameters
             (
-                new OrderByDescriptor
+                new OrderByOperatorParameters
                 (
-                    new GroupByDescriptor
+                    new GroupByOperatorParameters
                     (
-                        new ParameterDescriptor("q"),
-                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
+                        new ParameterOperatorParameters("q"),
+                        new ConstantOperatorParameters(1, typeof(int)),
                         "a"
                     ),
-                    new MemberSelectorDescriptor("Key", new ParameterDescriptor("b")),
+                    new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("b")),
                     ListSortDirection.Ascending,
                     "b"
                 ),
-                new MemberInitDescriptor
+                new MemberInitOperatorParameters
                 (
-                    new Dictionary<string, DescriptorBase>
-                    {
-                        ["Sum_budget"] = new ToListDescriptor
+                    [
+                        new
                         (
-                            new WhereDescriptor
+                            "Sum_budget", 
+                            new ToListOperatorParameters
                             (
-                                new ParameterDescriptor("q"),
-                                new AndBinaryDescriptor
+                                new WhereOperatorParameters
                                 (
-                                    new EqualsBinaryDescriptor
+                                    new ParameterOperatorParameters("q"),
+                                    new AndBinaryOperatorParameters
                                     (
-                                        new MemberSelectorDescriptor("DepartmentID", new ParameterDescriptor("d")),
-                                        new CountDescriptor(new ParameterDescriptor("q"))
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new MemberSelectorOperatorParameters("DepartmentID", new ParameterOperatorParameters("d")),
+                                            new CountOperatorParameters(new ParameterOperatorParameters("q"))
+                                        ),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new MemberSelectorOperatorParameters("DepartmentID", new ParameterOperatorParameters("d")),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("c"))
+                                        )
                                     ),
-                                    new EqualsBinaryDescriptor
-                                    (
-                                        new MemberSelectorDescriptor("DepartmentID", new ParameterDescriptor("d")),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("c"))
-                                    )
-                                ),
-                                "d"
+                                    "d"
+                                )
                             )
                         )
-                    }
+                    ]
                 ),
                 "c"
             );
@@ -145,111 +140,131 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         public void BuildGroupBy_AsQueryable_OrderBy_Select_FirstOrDefault()
         {
             //act
-            var descriptor = new FirstOrDefaultDescriptor
+            var descriptor = new FirstOrDefaultOperatorParameters
             (
-                new SelectDescriptor
+                new SelectOperatorParameters
                 (
-                    new OrderByDescriptor
+                    new OrderByOperatorParameters
                     (
-                        new AsQueryableDescriptor
+                        new AsQueryableOperatorParameters
                         (
-                            new GroupByDescriptor
+                            new GroupByOperatorParameters
                             (
-                                new ParameterDescriptor("q"),
-                                new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
+                                new ParameterOperatorParameters("q"),
+                                new ConstantOperatorParameters(1, typeof(int)),
                                 "item"
                             )
                         ),
-                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("group")),
+                        new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("group")),
                         ListSortDirection.Ascending,
                         "group"
                     ),
-                    new MemberInitDescriptor
+                    new MemberInitOperatorParameters
                     (
-                        new Dictionary<string, DescriptorBase>
-                        {
-                            ["Min_administratorName"] = new MinDescriptor
+                        [
+                            new 
                             (
-                                new WhereDescriptor
+                                "Min_administratorName", 
+                                new MinOperatorParameters
                                 (
-                                    new ParameterDescriptor("q"),
-                                    new EqualsBinaryDescriptor
+                                    new WhereOperatorParameters
                                     (
-                                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("sel"))
+                                        new ParameterOperatorParameters("q"),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new ConstantOperatorParameters(1, typeof(int)),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("sel"))
+                                        ),
+                                        "d"
                                     ),
-                                    "d"
-                                ),
-                                new ConcatDescriptor
-                                (
-                                    new ConcatDescriptor
+                                    new ConcatOperatorParameters
                                     (
-                                        new MemberSelectorDescriptor("Administrator.LastName", new ParameterDescriptor("item")),
-                                        new ConstantDescriptor(" ", typeof(string).AssemblyQualifiedName)
+                                        new ConcatOperatorParameters
+                                        (
+                                            new MemberSelectorOperatorParameters("Administrator.LastName", new ParameterOperatorParameters("item")),
+                                            new ConstantOperatorParameters(" ", typeof(string))
+                                        ),
+                                        new MemberSelectorOperatorParameters("Administrator.FirstName", new ParameterOperatorParameters("item"))
                                     ),
-                                    new MemberSelectorDescriptor("Administrator.FirstName", new ParameterDescriptor("item"))
-                                ),
-                                "item"
-                            ),
-                            ["Count_name"] = new CountDescriptor
-                            (
-                                new WhereDescriptor
-                                (
-                                    new ParameterDescriptor("q"),
-                                    new EqualsBinaryDescriptor
-                                    (
-                                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("sel"))
-                                    ),
-                                    "d"
+                                    "item"
                                 )
                             ),
-                            ["Sum_budget"] = new SumDescriptor
+                            new
                             (
-                                new WhereDescriptor
+                                "Count_name", 
+                                new CountOperatorParameters
                                 (
-                                    new ParameterDescriptor("q"),
-                                    new EqualsBinaryDescriptor
+                                    new WhereOperatorParameters
                                     (
-                                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("sel"))
-                                    ),
-                                    "d"
-                                ),
-                                new MemberSelectorDescriptor("Budget", new ParameterDescriptor("item")),
-                                "item"
+                                        new ParameterOperatorParameters("q"),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new ConstantOperatorParameters(1, typeof(int)),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("sel"))
+                                        ),
+                                        "d"
+                                    )
+                                )
                             ),
-                            ["Min_budget"] = new MinDescriptor
+                            new
                             (
-                                new WhereDescriptor
+                                "Sum_budget", 
+                                new SumOperatorParameters
                                 (
-                                    new ParameterDescriptor("q"),
-                                    new EqualsBinaryDescriptor
+                                    new WhereOperatorParameters
                                     (
-                                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("sel"))
+                                        new ParameterOperatorParameters("q"),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new ConstantOperatorParameters(1, typeof(int)),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("sel"))
+                                        ),
+                                        "d"
                                     ),
-                                    "d"
-                                ),
-                                new MemberSelectorDescriptor("Budget", new ParameterDescriptor("item")),
-                                "item"
+                                    new MemberSelectorOperatorParameters("Budget", new ParameterOperatorParameters("item")),
+                                    "item"
+                                )
                             ),
-                            ["Min_startDate"] = new MinDescriptor
+                            new
                             (
-                                new WhereDescriptor
+                                "Min_budget", 
+                                new MinOperatorParameters
                                 (
-                                    new ParameterDescriptor("q"),
-                                    new EqualsBinaryDescriptor
+                                    new WhereOperatorParameters
                                     (
-                                        new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
-                                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("sel"))
+                                        new ParameterOperatorParameters("q"),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new ConstantOperatorParameters(1, typeof(int)),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("sel"))
+                                        ),
+                                        "d"
                                     ),
-                                    "d"
-                                ),
-                                new MemberSelectorDescriptor("StartDate", new ParameterDescriptor("item")),
-                                "item"
+                                    new MemberSelectorOperatorParameters("Budget", new ParameterOperatorParameters("item")),
+                                    "item"
                             )
-                        }
+                            ),
+                            new
+                            (
+                                "Min_startDate", 
+                                new MinOperatorParameters
+                                (
+                                    new WhereOperatorParameters
+                                    (
+                                        new ParameterOperatorParameters("q"),
+                                        new EqualsBinaryOperatorParameters
+                                        (
+                                            new ConstantOperatorParameters(1, typeof(int)),
+                                            new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("sel"))
+                                        ),
+                                        "d"
+                                    ),
+                                    new MemberSelectorOperatorParameters("StartDate", new ParameterOperatorParameters("item")),
+                                    "item"
+                                )
+                            )
+                            
+                        ]
                     ),
                     "sel"
                 )
@@ -265,34 +280,37 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
         public void BuildGroupBy_AsQueryable_OrderBy_Select_IGroupableAsEnumerable_FirstOrDefault()
         {
             //act
-            var descriptor = new FirstOrDefaultDescriptor
+            var descriptor = new FirstOrDefaultOperatorParameters
             (
-                new SelectDescriptor
+                new SelectOperatorParameters
                 (
-                    new OrderByDescriptor
+                    new OrderByOperatorParameters
                     (
-                        new AsQueryableDescriptor
+                        new AsQueryableOperatorParameters
                         (
-                            new GroupByDescriptor
+                            new GroupByOperatorParameters
                             (
-                                new ParameterDescriptor("q"),
-                                new ConstantDescriptor(1, typeof(int).AssemblyQualifiedName),
+                                new ParameterOperatorParameters("q"),
+                                new ConstantOperatorParameters(1, typeof(int)),
                                 "item"
                             )
                         ),
-                        new MemberSelectorDescriptor("Key", new ParameterDescriptor("group")),
+                        new MemberSelectorOperatorParameters("Key", new ParameterOperatorParameters("group")),
                         ListSortDirection.Ascending,
                         "group"
                     ),
-                    new MemberInitDescriptor
+                    new MemberInitOperatorParameters
                     (
-                        new Dictionary<string, DescriptorBase>
-                        {
-                            ["NumericValue"] = new CountDescriptor
+                        [
+                            new MemberBindingItem
                             (
-                                new AsEnumerableDescriptor(new ParameterDescriptor("sel"))
+                                "NumericValue", 
+                                new CountOperatorParameters
+                                (
+                                    new AsEnumerableOperatorParameters(new ParameterOperatorParameters("sel"))
+                                )
                             )
-                        }
+                        ]
                     ),
                     "sel"
                 )
@@ -315,23 +333,23 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.All(a => ((a.CategoryName == \"CategoryOne\") OrElse (a.CategoryName == \"CategoryTwo\")))");
             Assert.True(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AllDescriptor
+                    new AllOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new OrBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new OrBinaryOperatorParameters
                         (
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("CategoryName", new ParameterDescriptor("a")),
-                                new ConstantDescriptor("CategoryOne")
+                                new MemberSelectorOperatorParameters("CategoryName", new ParameterOperatorParameters("a")),
+                                new ConstantOperatorParameters("CategoryOne")
                             ),
-                            new EqualsBinaryDescriptor
+                            new EqualsBinaryOperatorParameters
                             (
-                                new MemberSelectorDescriptor("CategoryName", new ParameterDescriptor("a")),
-                                new ConstantDescriptor("CategoryTwo")
+                                new MemberSelectorOperatorParameters("CategoryName", new ParameterOperatorParameters("a")),
+                                new ConstantOperatorParameters("CategoryTwo")
                             )
                         ),
                         "a"
@@ -351,16 +369,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Any(a => (a.CategoryName == \"CategoryOne\"))");
             Assert.True(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryName", new ParameterDescriptor("a")),
-                            new ConstantDescriptor("CategoryOne")
+                            new MemberSelectorOperatorParameters("CategoryName", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters("CategoryOne")
                         ),
                         "a"
                     ),
@@ -379,12 +397,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Any()");
             Assert.True(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AnyDescriptor
+                    new AnyOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -401,12 +419,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.AsQueryable()");
             Assert.True(result.GetType().IsIQueryable());
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AsQueryableDescriptor
+                    new AsQueryableOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -423,13 +441,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Average(a => a.CategoryID)");
             Assert.Equal(1.5, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AverageDescriptor
+                    new AverageOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -447,15 +465,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Select(a => a.CategoryID).Average()");
             Assert.Equal(1.5, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new AverageDescriptor
+                    new AverageOperatorParameters
                     (
-                        new SelectDescriptor
+                        new SelectOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             "a"
                         )
                     ),
@@ -474,16 +492,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Count(a => (a.CategoryID == 1))");
             Assert.Equal(1, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new CountDescriptor
+                    new CountOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(1)
                         ),
                         "a"
                     ),
@@ -502,12 +520,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Count()");
             Assert.Equal(2, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new CountDescriptor
+                    new CountOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -524,12 +542,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Distinct()");
             Assert.Equal(2, result.Count());
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new DistinctDescriptor
+                    new DistinctOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -545,16 +563,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.First(a => (a.CategoryID == -1))");
             Assert.Throws<InvalidOperationException>(() => RunExpression(expression, GetCategories()));
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstDescriptor
+                    new FirstOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
@@ -573,16 +591,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.First(a => (a.CategoryID == 1))");
             Assert.Equal(1, result.CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstDescriptor
+                    new FirstOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(1)
                         ),
                         "a"
                     ),
@@ -601,12 +619,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.First()");
             Assert.NotNull(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstDescriptor
+                    new FirstOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -623,16 +641,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.FirstOrDefault(a => (a.CategoryID == -1))");
             Assert.Null(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstOrDefaultDescriptor
+                    new FirstOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
@@ -651,16 +669,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.FirstOrDefault(a => (a.CategoryID == 1))");
             Assert.Equal(1, result.CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstOrDefaultDescriptor
+                    new FirstOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(1)
                         ),
                         "a"
                     ),
@@ -679,12 +697,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.FirstOrDefault()");
             Assert.NotNull(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new FirstOrDefaultDescriptor
+                    new FirstOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -703,13 +721,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.Equal(2, result.First().Count());
             Assert.Equal(3, result.First().First().SupplierID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new GroupByDescriptor
+                    new GroupByOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("SupplierID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("SupplierID", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -726,16 +744,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Last(a => (a.CategoryID == -1))");
             Assert.Throws<InvalidOperationException>(() => RunExpression(expression, GetCategories()));
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastDescriptor
+                    new LastOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
@@ -754,16 +772,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Last(a => (a.CategoryID == 2))");
             Assert.Equal(2, result.CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastDescriptor
+                    new LastOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(2)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(2)
                         ),
                         "a"
                     ),
@@ -782,12 +800,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Last()");
             Assert.NotNull(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastDescriptor
+                    new LastOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -804,16 +822,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.LastOrDefault(a => (a.CategoryID == -1))");
             Assert.Null(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastOrDefaultDescriptor
+                    new LastOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
@@ -832,16 +850,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.LastOrDefault(a => (a.CategoryID == 2))");
             Assert.Equal(2, result.CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastOrDefaultDescriptor
+                    new LastOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(2)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(2)
                         ),
                         "a"
                     ),
@@ -860,12 +878,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.LastOrDefault()");
             Assert.NotNull(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new LastOrDefaultDescriptor
+                    new LastOrDefaultOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -882,13 +900,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Max(a => a.CategoryID)");
             Assert.Equal(2, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new MaxDescriptor
+                    new MaxOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -906,15 +924,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Select(a => a.CategoryID).Max()");
             Assert.Equal(2, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new MaxDescriptor
+                    new MaxOperatorParameters
                     (
-                        new SelectDescriptor
+                        new SelectOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             "a"
                         )
                     ),
@@ -933,13 +951,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Min(a => a.CategoryID)");
             Assert.Equal(1, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new MinDescriptor
+                    new MinOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -957,15 +975,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Select(a => a.CategoryID).Min()");
             Assert.Equal(1, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new MinDescriptor
+                    new MinOperatorParameters
                     (
-                        new SelectDescriptor
+                        new SelectOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             "a"
                         )
                     ),
@@ -984,13 +1002,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.OrderBy(a => a.CategoryID)");
             Assert.Equal(1, result.First().CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new OrderByDescriptor
+                    new OrderByOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         ListSortDirection.Ascending,
                         "a"
                     ),
@@ -1009,13 +1027,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.OrderByDescending(a => a.CategoryID)");
             Assert.Equal(2, result.First().CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new OrderByDescriptor
+                    new OrderByOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         ListSortDirection.Descending,
                         "a"
                     ),
@@ -1034,19 +1052,19 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.OrderBy(a => a.SupplierID).ThenBy(a => a.ProductID)");
             Assert.Equal(1, result.First().ProductID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new ThenByDescriptor
+                    new ThenByOperatorParameters
                     (
-                        new OrderByDescriptor
+                        new OrderByOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("SupplierID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("SupplierID", new ParameterOperatorParameters("a")),
                             ListSortDirection.Ascending,
                             "a"
                         ),
-                        new MemberSelectorDescriptor("ProductID", new ParameterDescriptor("a")),
+                        new MemberSelectorOperatorParameters("ProductID", new ParameterOperatorParameters("a")),
                         ListSortDirection.Ascending,
                         "a"
                     ),
@@ -1065,19 +1083,19 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.OrderBy(a => a.SupplierID).ThenByDescending(a => a.ProductID)");
             Assert.Equal(2, result.First().ProductID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new ThenByDescriptor
+                    new ThenByOperatorParameters
                     (
-                        new OrderByDescriptor
+                        new OrderByOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("SupplierID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("SupplierID", new ParameterOperatorParameters("a")),
                             ListSortDirection.Ascending,
                             "a"
                         ),
-                        new MemberSelectorDescriptor("ProductID", new ParameterDescriptor("a")),
+                        new MemberSelectorOperatorParameters("ProductID", new ParameterOperatorParameters("a")),
                         ListSortDirection.Descending,
                         "a"
                     ),
@@ -1101,28 +1119,28 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             Assert.Equal(2, result.Count());
             Assert.Equal(4, result.First().AddressID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new TakeDescriptor
+                    new TakeOperatorParameters
                     (
-                        new SkipDescriptor
+                        new SkipOperatorParameters
                         (
-                            new ThenByDescriptor
+                            new ThenByOperatorParameters
                             (
-                                new OrderByDescriptor
+                                new OrderByOperatorParameters
                                 (
-                                    new SelectManyDescriptor
+                                    new SelectManyOperatorParameters
                                     (
-                                        new ParameterDescriptor(parameterName),
-                                        new MemberSelectorDescriptor("AlternateAddresses", new ParameterDescriptor("a")),
+                                        new ParameterOperatorParameters(parameterName),
+                                        new MemberSelectorOperatorParameters("AlternateAddresses", new ParameterOperatorParameters("a")),
                                         "a"
                                     ),
-                                    new MemberSelectorDescriptor("State", new ParameterDescriptor("a")),
+                                    new MemberSelectorOperatorParameters("State", new ParameterOperatorParameters("a")),
                                     ListSortDirection.Ascending,
                                     "a"
                                 ),
-                                new MemberSelectorDescriptor("AddressID", new ParameterDescriptor("a")),
+                                new MemberSelectorOperatorParameters("AddressID", new ParameterOperatorParameters("a")),
                                 ListSortDirection.Ascending,
                                 "a"
                             ),
@@ -1142,25 +1160,25 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
 
             Assert.Equal(2, result.First().CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SelectDescriptor
+                    new SelectOperatorParameters
                     (
-                        new OrderByDescriptor
+                        new OrderByOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             ListSortDirection.Descending,
                             "a"
                         ),
-                        new MemberInitDescriptor
+                        new MemberInitOperatorParameters
                         (
-                            new Dictionary<string, DescriptorBase>
+                            new MemberBindingItem[]
                             {
-                                ["CategoryID"] = new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                                ["CategoryName"] = new MemberSelectorDescriptor("CategoryName", new ParameterDescriptor("a")),
-                                ["Products"] = new MemberSelectorDescriptor("Products", new ParameterDescriptor("a"))
+                                new ("CategoryID", new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a"))),
+                                new ("CategoryName", new MemberSelectorOperatorParameters("CategoryName", new ParameterOperatorParameters("a"))),
+                                new ("Products", new MemberSelectorOperatorParameters("Products", new ParameterOperatorParameters("a")))
                             }
                         ),
                         "a"
@@ -1180,13 +1198,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.SelectMany(a => a.Products)");
             Assert.Equal(3, result.Count());
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SelectManyDescriptor
+                    new SelectManyOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("Products", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("Products", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -1203,16 +1221,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Single(a => (a.CategoryID == -1))");
             Assert.Throws<InvalidOperationException>(() => RunExpression(expression, GetCategories()));
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SingleDescriptor
+                    new SingleOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
@@ -1231,16 +1249,16 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Single(a => (a.CategoryID == 1))");
             Assert.Equal(1, result.CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SingleDescriptor
+                    new SingleOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(1)
                         ),
                         "a"
                     ),
@@ -1258,12 +1276,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Single()");
             Assert.Throws<InvalidOperationException>(() => RunExpression(expression, GetCategories()));
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SingleDescriptor
+                    new SingleOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName)
+                        new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -1280,13 +1298,13 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Sum(a => a.CategoryID)");
             Assert.Equal(3, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SumDescriptor
+                    new SumOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                        new ParameterOperatorParameters(parameterName),
+                        new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                         "a"
                     ),
                     parameterName
@@ -1304,15 +1322,15 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
             AssertFilterStringIsCorrect(expression, "$it => $it.Select(a => a.CategoryID).Sum()");
             Assert.Equal(3, result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new SumDescriptor
+                    new SumOperatorParameters
                     (
-                        new SelectDescriptor
+                        new SelectOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             "a"
                         )
                     ),
@@ -1328,12 +1346,12 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
 
             Assert.Equal(2, result.Count);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new ToListDescriptor
+                    new ToListOperatorParameters
                     (
-                       new ParameterDescriptor(parameterName)
+                       new ParameterOperatorParameters(parameterName)
                     ),
                     parameterName
                 );
@@ -1347,22 +1365,22 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
 
             Assert.Equal(2, result.First().CategoryID);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new WhereDescriptor
+                    new WhereOperatorParameters
                     (
-                        new OrderByDescriptor
+                        new OrderByOperatorParameters
                         (
-                            new ParameterDescriptor(parameterName),
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
+                            new ParameterOperatorParameters(parameterName),
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
                             ListSortDirection.Descending,
                             "a"
                         ),
-                        new NotEqualsBinaryDescriptor
+                        new NotEqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(1)
                         ),
                         "a"
                     ),
@@ -1378,70 +1396,31 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
 
             Assert.Empty(result);
 
-            Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
+            static Expression<Func<T, TReturn>> CreateExpression<T, TReturn>()
                 => GetExpression<T, TReturn>
                 (
-                    new WhereDescriptor
+                    new WhereOperatorParameters
                     (
-                        new ParameterDescriptor(parameterName),
-                        new EqualsBinaryDescriptor
+                        new ParameterOperatorParameters(parameterName),
+                        new EqualsBinaryOperatorParameters
                         (
-                            new MemberSelectorDescriptor("CategoryID", new ParameterDescriptor("a")),
-                            new ConstantDescriptor(-1)
+                            new MemberSelectorOperatorParameters("CategoryID", new ParameterOperatorParameters("a")),
+                            new ConstantOperatorParameters(-1)
                         ),
                         "a"
                     ),
                     parameterName
                 );
         }
+        #endregion Tests
 
-        [MemberNotNull(nameof(MapperConfiguration))]
-        private static void InitializeMapperConfiguration()
-        {
-            MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
-            {
-                cfg.AddExpressionMapping();
-                cfg.AddProfile<ExpressionOperatorsMappingProfile>();
-            });
-        }
+        #region Fields
+        private static MapperConfiguration MapperConfiguration;
+        private static readonly string parameterName = "$it";
+        private static IServiceProvider serviceProvider;
+        #endregion Fields
 
-        static MapperConfiguration MapperConfiguration;
-
-        [MemberNotNull(nameof(serviceProvider))]
-        private void Initialize()
-        {
-            serviceProvider = new ServiceCollection()
-                .AddSingleton<AutoMapper.IConfigurationProvider>
-                (
-                    MapperConfiguration
-                )
-                .AddTransient<IMapper>(sp => new Mapper(sp.GetRequiredService<AutoMapper.IConfigurationProvider>(), sp.GetService))
-                .BuildServiceProvider();
-        }
-
-        private static Dictionary<string, ParameterExpression> GetParameters()
-            => [];
-
-        private Expression<Func<T, TResult>> GetExpression<T, TResult>(DescriptorBase filterBody, string defaultParameterName = "$it")
-        {
-            IMapper mapper = serviceProvider.GetRequiredService<IMapper>();
-
-            return (Expression<Func<T, TResult>>)mapper.Map<SelectorLambdaOperator>
-            (
-                new SelectorLambdaDescriptor
-                (
-                    filterBody,
-                    typeof(T).AssemblyQualifiedName!,
-                    defaultParameterName,
-                    typeof(TResult).AssemblyQualifiedName
-                ),
-                opts => opts.Items["parameters"] = GetParameters()
-            ).Build();
-        }
-
-        private static TResult RunExpression<T, TResult>(Expression<Func<T, TResult>> filter, T instance)
-            => filter.Compile().Invoke(instance);
-
+        #region Helpers
         private static void AssertFilterStringIsCorrect(Expression expression, string expected)
         {
             AssertStringIsCorrect(ExpressionStringBuilder.ToString(expression));
@@ -1453,6 +1432,47 @@ namespace LogicBuilder.EntityFrameworkCore.Tests
                     $"Expected expression '{expected}' but the deserializer produced '{resultExpression}'"
                 );
         }
+
+        private static Expression<Func<T, TResult>> GetExpression<T, TResult>(IExpressionParameter filterBody, string defaultParameterName = "$it")
+        {
+            IMapper mapper = serviceProvider.GetRequiredService<IMapper>();
+            DescriptorBase descriptorFilterBody = mapper.Map<DescriptorBase>(filterBody);
+
+            return (Expression<Func<T, TResult>>)mapper.Map<SelectorLambdaOperator>
+            (
+                new SelectorLambdaDescriptor
+                (
+                    descriptorFilterBody,
+                    typeof(T).AssemblyQualifiedName!,
+                    defaultParameterName,
+                    typeof(TResult).AssemblyQualifiedName
+                ),
+                opts => opts.Items["parameters"] = new Dictionary<string, ParameterExpression>()
+            ).Build();
+        }
+
+        [MemberNotNull(nameof(MapperConfiguration))]
+        [MemberNotNull(nameof(serviceProvider))]
+        private static void Initialize()
+        {
+            MapperConfiguration ??= ConfigurationHelper.GetMapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<ExpressionOperatorsMappingProfile>();
+                cfg.AddProfile<ExpressionParameterToDescriptorMappingProfile>();
+            });
+
+            serviceProvider = new ServiceCollection()
+                .AddSingleton<AutoMapper.IConfigurationProvider>
+                (
+                    MapperConfiguration
+                )
+                .AddTransient<IMapper>(sp => new Mapper(sp.GetRequiredService<AutoMapper.IConfigurationProvider>(), sp.GetService))
+                .BuildServiceProvider();
+        }
+
+        private static TResult RunExpression<T, TResult>(Expression<Func<T, TResult>> filter, T instance)
+            => filter.Compile().Invoke(instance);
+        #endregion Helpers
 
         private static IQueryable<Category> GetCategories()
          => new Category[]
