@@ -1,3 +1,4 @@
+* 2026-06-17 - AB#166: Update release notes.
 * 2026-06-17 - AB#166: Add tests for operator parameter classes.
 * 2026-06-16 - AB#166: Add remaining CosmosDB tests supported by the provider.
 * 2026-06-15 - AB#166: Add Contoso test entities.
