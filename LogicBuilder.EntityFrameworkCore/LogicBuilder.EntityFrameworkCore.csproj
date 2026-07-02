@@ -14,7 +14,7 @@
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
     <Description>Given an EF Core DBContext, LogicBuilder.EntityFrameworkCore uses AutoMapper configurations to support CRUD operations using the DTO objects.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>Adding reusable mapping profiles for UI parameter classes.</PackageReleaseNotes>
+    <PackageReleaseNotes>Referencing latest pacakges to fix sort collection descriptor bug.</PackageReleaseNotes>
     <PackageTags>crud operations efcore</PackageTags>
     <Copyright>Copyright © BPS 2017</Copyright>
     <RepositoryUrl>https://github.com/BpsLogicBuilder/LogicBuilder.EntityFrameworkCore</RepositoryUrl>
@@ -36,7 +36,7 @@
     <PackageReference Include="AutoMapper.Extensions.ExpressionMapping" Version="[11.0.0,12.0.0)" />
     <PackageReference Include="LogicBuilder.Data" Version="8.0.1" />
     <PackageReference Include="LogicBuilder.Domain" Version="8.0.1" />
-		<PackageReference Include="LogicBuilder.Expressions.Utils" Version="8.0.2" />
+		<PackageReference Include="LogicBuilder.Expressions.Utils" Version="8.0.3" />
 		<PackageReference Include="LogicBuilder.Forms.Parameters" Version="2.1.1" />
     <PackageReference Include="MinVer" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -46,11 +46,11 @@
   </ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.22" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.28" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.11" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.17" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(TargetFramework)' == 'net10.0' ">

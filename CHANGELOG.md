@@ -1,3 +1,4 @@
+* 2026-07-02 - AB#173: Referencing latest pacakges to fix sort collection descriptor bug.
 * 2026-06-17 - AB#166: Update release notes.
 * 2026-06-17 - AB#166: Add tests for operator parameter classes.
 * 2026-06-16 - AB#166: Add remaining CosmosDB tests supported by the provider.
